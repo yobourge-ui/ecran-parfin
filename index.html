@@ -22,7 +22,7 @@
 /* =====================================================================
    CONFIGURATION — la seule partie à modifier
    ===================================================================== */
-const APP_VERSION = "20261116-203205";   // change à chaque nouvelle version : la TV se met à jour toute seule
+const APP_VERSION = "20261116-222238";   // change à chaque nouvelle version : la TV se met à jour toute seule
 const CONFIG = {
   // Identifiant du Google Sheet : c'est la partie entre /d/ et /edit dans l'adresse.
   // https://docs.google.com/spreadsheets/d/  >>> CET_IDENTIFIANT <<<  /edit
@@ -50,7 +50,7 @@ const CONFIG = {
   // musique1.mp3, musique2.mp3 … musique10.mp3 — ils sont trouvés et joués automatiquement (ordre aléatoire, en boucle).
   // Couper le son sans rien modifier : ajouter ?son=0 à l'adresse.
   MUSIC_MAX_FILES: 10,
-  MUSIC_VOLUME: 0.35,           // de 0 (muet) à 1 (fort)
+  MUSIC_VOLUME: 1,              // volume normal (100 %) : on règle ensuite avec la télécommande de la TV
   MATCH_DAYS_AHEAD: 7,          // matchs affichés : aujourd'hui + N jours
   RESULTS_DAYS_BACK: 10,        // résultats affichés : les N derniers jours
   DATA_REFRESH_MINUTES: 5,      // relecture du Google Sheet
