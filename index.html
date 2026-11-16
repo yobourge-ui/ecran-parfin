@@ -2,11 +2,6 @@
 <html lang="fr">
 <head>
 <meta charset="utf-8">
-<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
-<meta http-equiv="Pragma" content="no-cache">
-<meta http-equiv="Expires" content="0">
-<meta name="color-scheme" content="only dark">
-<meta name="darkreader-lock">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
 <title>FC PARFIN — Écran Club House</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -15,7 +10,6 @@
 /* =====================================================================
    CONFIGURATION — la seule partie à modifier
    ===================================================================== */
-const APP_VERSION = "20261116-1642";   // change à chaque nouvelle version : la TV se met à jour toute seule
 const CONFIG = {
   // Identifiant du Google Sheet : c'est la partie entre /d/ et /edit dans l'adresse.
   // https://docs.google.com/spreadsheets/d/  >>> CET_IDENTIFIANT <<<  /edit
@@ -52,7 +46,6 @@ const CONFIG = {
 </script>
 <style>
   :root{
-    color-scheme: only dark;   /* empêche la TV d'assombrir elle-même les zones blanches */
     --y:#FFD100; --y2:#FFE45C; --ink:#1E1F22;           /* jaune club + texte foncé sur jaune */
     --k:#2B2E33; --k2:#383C42; --k3:#43474E; --line:#50555C; /* nuances de gris anthracite */
     --w:#F4F2EE; --mute:#A9ACB1; --win:#2ECC71; --draw:#B0B0A8; --loss:#E74C3C;
@@ -219,7 +212,7 @@ const CONFIG = {
     display:flex;align-items:center;justify-content:center;text-align:center;text-transform:uppercase;padding:0 18px}
   .marq{flex:1;overflow:hidden;position:relative;display:flex;align-items:center}
   .track{display:flex;gap:46px;padding-left:46px;white-space:nowrap;will-change:transform;animation:scroll linear infinite}
-  .track .logo{height:108px;min-width:200px;background:#ffffff;background-image:linear-gradient(#fff,#fff);color-scheme:only light;forced-color-adjust:none;border-radius:8px;box-shadow:0 0 0 2px #fff;display:flex;align-items:center;justify-content:center;padding:10px 22px;
+  .track .logo{height:108px;min-width:200px;background:#ffffff;border-radius:8px;box-shadow:0 0 0 2px #fff;display:flex;align-items:center;justify-content:center;padding:10px 22px;
     color:var(--ink);font-family:'Bebas Neue';font-weight:400;font-size:30px}
   .track .logo img{max-height:84px;max-width:250px;object-fit:contain;background:#fff;border-radius:4px}
   .welcome{font-family:'Bebas Neue';font-weight:400;font-size:44px;color:var(--y);padding-left:46px;letter-spacing:1px}
@@ -724,14 +717,6 @@ function fit(){
   await loadData(); build(); next();
   startMusic();
   setInterval(loadData, CONFIG.DATA_REFRESH_MINUTES*60000);   // les nouvelles données s'affichent au tour suivant
-  // toutes les 5 minutes : si une nouvelle version a été mise sur GitHub, la page se recharge toute seule
-  setInterval(async () => {
-    try {
-      const txt = await (await fetch(location.pathname + "?v=" + Date.now(), {cache: "no-store"})).text();
-      const m = txt.match(/const APP_VERSION = "20261116-1642"]+)"/);
-      if (m && m[1] !== APP_VERSION){ const q = new URLSearchParams(location.search); q.set("maj", m[1]); location.replace(location.pathname + "?" + q.toString()); }
-    } catch(e){}
-  }, 5 * 60000);
   // rechargement complet chaque nuit à 4h (au cas où la page aurait été modifiée)
   setInterval(() => { const d = nowLocal(); if (d.getHours()===4 && d.getMinutes()===0) location.reload(); }, 60000);
 })();
