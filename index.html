@@ -2,7 +2,7 @@
 <html lang="fr">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
 <title>FC PARFIN — Écran Club House</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -43,7 +43,7 @@ const CONFIG = {
     --w:#F4F2EE; --mute:#A9ACB1; --win:#2ECC71; --draw:#B0B0A8; --loss:#E74C3C;
   }
   *{box-sizing:border-box;margin:0;padding:0}
-  html,body{width:100%;height:100%;background:#1B1D20;overflow:hidden;cursor:none}
+  html,body{width:100%;height:100%;max-width:100vw;max-height:100vh;background:#1B1D20;overflow:hidden;cursor:none}
   body{font-family:'Outfit',system-ui,sans-serif;color:var(--w)}
   #stage{position:absolute;left:0;top:0;width:1920px;height:1080px;transform-origin:0 0;background:radial-gradient(ellipse at 70% 30%,#363A40 0%,#2B2E33 55%,#24272B 100%);overflow:hidden}
 
@@ -546,17 +546,30 @@ async function weather(){
 }
 
 /* ===================== MISE À L'ÉCHELLE (TV 16:9) ===================== */
+// Marge de sécurité réglable dans l'adresse : ...ecran-parfin/?marge=5  (en %, pour les TV qui rognent les bords)
+const MARGE = Math.max(0, Math.min(20, parseFloat(new URLSearchParams(location.search).get("marge")) || 0));
+function viewSize(){
+  // la taille réellement visible, quelle que soit la façon dont le navigateur de la TV la déclare
+  const vv = window.visualViewport;
+  const w = Math.min(...[vv && vv.width, document.documentElement.clientWidth, innerWidth].filter(x => x > 0));
+  const h = Math.min(...[vv && vv.height, document.documentElement.clientHeight, innerHeight].filter(x => x > 0));
+  return [w, h];
+}
 function fit(){
-  const s = Math.min(innerWidth/1920, innerHeight/1080);
+  const [W, H] = viewSize();
+  const k = 1 - MARGE/50;               // marge des deux côtés
+  const s = Math.min(W/1920, H/1080) * k;
   const st = $("stage");
   st.style.transform = `scale(${s})`;
-  st.style.left = (innerWidth - 1920*s)/2 + "px";
-  st.style.top = (innerHeight - 1080*s)/2 + "px";
+  st.style.left = (W - 1920*s)/2 + "px";
+  st.style.top = (H - 1080*s)/2 + "px";
 }
 
 /* ===================== DÉMARRAGE ===================== */
 (async function init(){
   fit(); addEventListener("resize", fit);
+  if (window.visualViewport) visualViewport.addEventListener("resize", fit);
+  addEventListener("load", fit); setTimeout(fit, 1500); setInterval(fit, 10000);
   $("clubName").textContent = CONFIG.CLUB_NAME;
   $("clubSub").textContent = CONFIG.CLUB_SUBTITLE;
   if (CONFIG.CLUB_LOGO_URL){
