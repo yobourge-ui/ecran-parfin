@@ -22,7 +22,7 @@
 /* =====================================================================
    CONFIGURATION — la seule partie à modifier
    ===================================================================== */
-const APP_VERSION = "20261116-222238";   // change à chaque nouvelle version : la TV se met à jour toute seule
+const APP_VERSION = "20261119-161137";   // change à chaque nouvelle version : la TV se met à jour toute seule
 const CONFIG = {
   // Identifiant du Google Sheet : c'est la partie entre /d/ et /edit dans l'adresse.
   // https://docs.google.com/spreadsheets/d/  >>> CET_IDENTIFIANT <<<  /edit
@@ -314,6 +314,57 @@ const CONFIG = {
   main.light .ann p{color:var(--txt2)}
   main.light .ann img{box-shadow:0 14px 34px rgba(60,45,20,.18)}
   main.light .empty{color:var(--txt3)}
+  /* ===== Emploi du temps du club house ===== */
+  main.bg-pierre{background:radial-gradient(ellipse 70% 60% at 14% 8%,rgba(255,255,255,.5) 0%,rgba(255,255,255,0) 70%),radial-gradient(ellipse 65% 60% at 92% 100%,rgba(40,30,10,.10) 0%,rgba(40,30,10,0) 72%),#E6E0D2;color-scheme:only light;forced-color-adjust:none}
+  main.bg-pierre.light{--ocre:#1B1D21;--txt3:#5A5548}
+  .edt{display:grid;grid-template-columns:200px 112px repeat(7,minmax(0,1fr));grid-template-rows:44px repeat(8,minmax(0,1fr));gap:6px;height:calc(100% - 104px);color:#141414}
+  .eday{background:#141414;color:var(--y);border-radius:7px;display:flex;align-items:center;justify-content:center;font-family:'Bebas Neue';font-size:27px;letter-spacing:2px}
+  .eday.we{background:#3A3A3A}
+  .eroom{background:#fff;border-radius:8px;padding:8px 14px;display:flex;flex-direction:column;justify-content:center;gap:3px;box-shadow:0 2px 8px rgba(40,30,10,.08)}
+  .eroom b{font-family:'Bebas Neue';font-weight:400;font-size:28px;line-height:1;letter-spacing:1px}
+  .eroom span{font-size:13px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:#7A6200}
+  .eslot{display:flex;align-items:center;font-size:12px;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:#5A5548;line-height:1.15}
+  .ecell{border-radius:8px;padding:6px 10px;display:flex;flex-direction:column;justify-content:center;gap:2px;min-height:0;overflow:hidden;box-shadow:0 2px 8px rgba(40,30,10,.10)}
+  .ecell b{font-size:18px;font-weight:800;line-height:1.1}
+  .ecell .es{font-size:13px;line-height:1.2;opacity:.75}
+  .etag{align-self:flex-start;font-size:10.5px;font-weight:800;letter-spacing:1px;text-transform:uppercase;padding:2px 7px;border-radius:4px;background:#141414;color:var(--y);margin-bottom:2px}
+  .ecell.c-y{background:var(--y)}
+  .ecell.c-green{background:#3EC14E}
+  .ecell.c-blue{background:#75C1FF}
+  .ecell.c-pink{background:#FF4492}
+  .ecell.c-pink .etag,.ecell.c-blue .etag{color:#fff}
+  .ecell.dash{outline:2px dashed #141414;outline-offset:-3px}
+  .ecell.c-black{background:#141414;color:#fff}
+  .ecell.c-grey{background:#3A3A3A;color:#fff}
+  .ecell.c-black .etag,.ecell.c-grey .etag{background:var(--y);color:#141414}
+  .ecell.wide{flex-direction:row;align-items:center;gap:20px}
+  .ecell.wide b{font-family:'Bebas Neue';font-weight:400;font-size:34px;letter-spacing:1px}
+  .ecell.wide .es{font-size:18px}
+  .ecell.wide .etag{align-self:center;margin:0}
+  .ecell.free{background:rgba(255,255,255,.55);color:#8A8474;align-items:center;font-size:13px;font-weight:700;letter-spacing:2px;text-transform:uppercase;box-shadow:none}
+  .slide.on .edt>*{animation:fadein .6s .5s ease both}
+  .slide.on .edt .ecell{animation:rise .6s .8s cubic-bezier(.16,.9,.3,1) both}
+  /* ===== Agenda : calendriers, catégories, lieux, plateaux ===== */
+  .ghead{display:flex !important;align-items:center;gap:16px;width:max-content;padding:6px 22px 6px 8px !important;margin:12px 0 10px !important}
+  .ghead .gcal{width:58px;height:58px;flex:none;background:#fff;color:#1B1D21;border-radius:8px;display:flex;flex-direction:column;align-items:center;justify-content:center;line-height:.9;box-shadow:0 2px 6px rgba(0,0,0,.2)}
+  .ghead .gcal b{font-family:'Bebas Neue';font-weight:400;font-size:36px}
+  .ghead .gcal i{font-style:normal;font-family:'Bebas Neue';font-size:15px;letter-spacing:1.5px}
+  .ghead .gtx{font-size:34px;letter-spacing:2px}
+  .ghead .gtx em{font-style:normal;opacity:.5;margin:0 4px}
+  .row{grid-template-columns:150px 180px 1fr 430px !important;min-height:84px !important}
+  .row .cat .pill{font-size:42px !important;padding:2px 16px 0 !important;line-height:1.1}
+  .row .mid{min-width:0}
+  .row .mid .comp{font-size:19px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:rgba(255,255,255,.72);margin:0 0 3px}
+  .venue{font-size:30px !important;color:#fff !important;font-weight:700;align-items:center !important}
+  .venue::before{width:24px !important;height:32px !important;margin-top:0 !important}
+  .venue b{display:block;font-weight:700;line-height:1.1}
+  .venue span{display:block;font-size:21px;font-weight:600;color:var(--y);letter-spacing:1px;text-transform:uppercase;margin-top:3px}
+  .plateau{display:flex;flex-direction:column;gap:7px}
+  .plateau .pg{display:flex;flex-wrap:wrap;gap:6px 8px;align-items:center}
+  .plateau .pc{font-size:21px;font-weight:600;color:#fff;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.18);border-radius:999px;padding:3px 13px;white-space:nowrap}
+  .plateau .pc.me{background:var(--y);color:var(--ink);border-color:var(--y);font-weight:700}
+  .plateau .pl{font-family:'Bebas Neue';font-size:24px;letter-spacing:1px;color:#fff;background:rgba(0,0,0,.35);border-radius:6px;padding:3px 12px 1px;white-space:nowrap}
+  .plateau .pl.me{color:var(--y)}
   /* ===== L'actu de Parfin : style appli d'actu ===== */
   .nx{display:flex;gap:30px;height:calc(100% - 112px)}
   .nx .hero{flex:1.5;min-width:0;position:relative;border-radius:20px;overflow:hidden;box-shadow:0 18px 40px rgba(40,25,0,.28)}
@@ -638,6 +689,22 @@ function head(title, sub, i, n){
   return `<div class="stitle"><h2>${esc(title)}</h2>${sub?`<div class="sub">${esc(sub)}</div>`:""}${n>1?`<div class="page">${i+1}/${n}</div>`:""}</div>`;
 }
 
+function plateauHTML(txt){
+  // « Plateau : A, B, C »  ou  « Poule A : A, B ; Poule B : C, D »  ou  « Parfin 1 (poule A) avec A, B ; Parfin 2 (poule B) avec C, D »
+  const body = String(txt||"").replace(/^\s*plateau\s*:?\s*/i, "");
+  const chip = t => `<span class="pc${CONFIG.CLUB_MATCH.test(t) ? " me" : ""}">${esc(t)}</span>`;
+  const groups = body.split(";").map(g => g.trim()).filter(Boolean).map(g => {
+    let label = "", rest = g, m;
+    if ((m = g.match(/^(.*?)\s+avec\s+(.*)$/i))) { label = m[1]; rest = m[2]; }
+    else if ((m = g.match(/^([^,:]{1,30}):\s*(.*)$/))) { label = m[1]; rest = m[2]; }
+    const items = rest.split(",").map(x => x.trim()).filter(Boolean);
+    return {label, items};
+  });
+  const n = groups.reduce((t,g) => t + Math.ceil((g.items.length + (g.label ? 1 : 0)) / 5), 0);
+  const html = `<div class="plateau">` + groups.map(g =>
+    `<div class="pg">${g.label ? `<span class="pl${CONFIG.CLUB_MATCH.test(g.label) ? " me" : ""}">${esc(g.label)}</span>` : ""}${g.items.map(chip).join("")}</div>`).join("") + `</div>`;
+  return {html, lines: Math.max(1, n)};
+}
 function slidesMatchs(){
   const t0 = today0(), tEnd = new Date(t0); tEnd.setDate(tEnd.getDate() + CONFIG.MATCH_DAYS_AHEAD);
   let list = (DATA.matchs||[]).map(m => ({...m, _d: parseDate(m.date)})).filter(m => m._d);
@@ -645,6 +712,7 @@ function slidesMatchs(){
   let sub = "";
   if (!sel.length){ sel = list.filter(m => m._d >= t0).sort((a,b)=>a._d-b._d).slice(0,12); sub = "Prochains matchs"; }
   if (!sel.length) return [];
+  const MO = ["JANV","FÉVR","MARS","AVRIL","MAI","JUIN","JUIL","AOÛT","SEPT","OCT","NOV","DÉC"];
   const hm = h => { const m = String(h||"").match(/(\d{1,2})\D*(\d{2})?/); return m ? (+m[1])*60 + (+(m[2]||0)) : 9999; };
   sel.forEach(m => { m._min = hm(m.heure); m._pm = m._min !== 9999 && m._min >= 12*60 + 30 ? 1 : 0; });
   // Tri : jour → matin/après-midi → catégorie (U7 → Seniors) → heure
@@ -652,23 +720,27 @@ function slidesMatchs(){
   const items = []; let lastKey = "";
   for (const m of sel){
     const key = m._d.toDateString() + m._pm;
-    if (key !== lastKey){ items.push({w:.75, head:true, html:`<div class="ghead">${esc(fmtDayLong(m._d))} · ${m._pm?"après-midi":"matin"}</div>`}); lastKey = key; }
+    if (key !== lastKey){
+      items.push({w:1, head:true, html:`<div class="ghead"><span class="gcal"><b>${m._d.getDate()}</b><i>${MO[m._d.getMonth()]}</i></span><span class="gtx">${esc(DAYS[m._d.getDay()])} <em>·</em> ${m._pm?"après-midi":"matin"}</span></div>`});
+      lastKey = key;
+    }
     const club = CONFIG.CLUB_MATCH.test((m.domicile||"")+" "+(m.exterieur||""));
-    const teams = m.exterieur
-      ? `<div class="teams">${hl(m.domicile)}<span class="vs">–</span>${hl(m.exterieur)}</div>`
-      : `<div class="teams free">${hlFree(m.domicile)}</div>`;
+    let teams, lines = 1;
+    if (m.exterieur) teams = `<div class="teams">${hl(m.domicile)}<span class="vs">–</span>${hl(m.exterieur)}</div>`;
+    else { const p = plateauHTML(m.domicile); teams = p.html; lines = p.lines; }
     const fin = m.fin ? `<small>→ ${esc(fmtHour(m.fin))}</small>` : "";
-    const len = (m.exterieur ? 0 : (m.domicile||"").length);
-    const lines = Math.max(1, Math.ceil(len / 95), Math.ceil((m.competition||"").length / 34), Math.ceil((m.stade||"").length / 34));
-    items.push({w: 1 + (lines - 1) * 0.42, html:
+    const st = String(m.stade||""), cut = st.lastIndexOf(",");
+    const venue = cut > 0 ? `<b>${esc(st.slice(0,cut))}</b><span>${esc(st.slice(cut+1).trim())}</span>` : `<b>${esc(st)}</b>`;
+    items.push({w: 1.12 + (lines - 1) * 0.5, html:
       `<div class="row ${club?"club":""}"><div class="hour">${esc(fmtHour(m.heure))}${fin}</div>
-       <div class="cat"><span class="pill">${esc(m.categorie)}</span><div class="comp">${esc(m.competition||"")}</div></div>
-       ${teams}<div class="venue">${esc(m.stade||"")}</div></div>`});
+       <div class="cat"><span class="pill">${esc(m.categorie)}</span></div>
+       <div class="mid">${m.competition ? `<div class="comp">${esc(m.competition)}</div>` : ""}${teams}</div>
+       <div class="venue"><div>${venue}</div></div></div>`});
   }
   // un écran ne commence jamais par une ligne sans son titre de groupe
-  const pages = paginate(items, 7.0).map((p, idx, arr) => {
+  const pages = paginate(items, 6.6).map((p, idx, arr) => {
     if (!p[0].html.startsWith('<div class="ghead"')){
-      for (let j = idx-1; j >= 0; j--){ const h = [...arr[j]].reverse().find(x => x.html.startsWith('<div class="ghead"')); if (h){ p.unshift({w:.75, html:h.html.replace("</div>"," (suite)</div>")}); break; } }
+      for (let j = idx-1; j >= 0; j--){ const h = [...arr[j]].reverse().find(x => x.html.startsWith('<div class="ghead"')); if (h){ p.unshift({w:1, html:h.html.replace('</span></div>',' (suite)</span></div>')}); break; } }
     }
     return p;
   });
@@ -798,6 +870,53 @@ function slidesActu(){
         <div class="cin"><div class="when">${esc(ago(a._d))}</div><h4>${esc(a.titre)}</h4>${a.texte ? `<p>${esc(a.texte)}</p>` : ""}</div></article>`; }).join("")}</div>` : ""}
   </div>`];
 }
+const EDT = {
+  // Emploi du temps du club house (semaine type). col : 0 = lundi … 6 = dimanche ; row : 0 = matin, 1 = après-midi
+  rooms: [
+    {name:"Grande salle", lvl:"Rez-de-chaussée", slots:["Matin","Après-midi / soirée"]},
+    {name:"Bureau", lvl:"Rez-de-chaussée", slots:["Matin","Après-midi"]},
+    {name:"Salle de sport", lvl:"Étage", slots:["Matin","Après-midi / soirée"]},
+    {name:"Salle de formation", lvl:"Étage", slots:["Matin","Après-midi"]}
+  ],
+  cells: [
+    {room:0,row:0,col:0,tag:"Parfin",t:"Réunion dirigeants",s:"Préparation de la semaine",c:"y"},
+    {room:0,row:1,col:0,tag:"Parfin",t:"Réunion éducateurs",s:"Préparation de la semaine",c:"y"},
+    {room:0,row:0,col:1,tag:"Centre social",t:"Groupe de parents",s:"En attente de convention",c:"blue",dash:true},
+    {room:0,row:1,col:1,tag:"Mawa Rose",t:"Activité culturelle",s:"",c:"pink"},
+    {room:0,row:0,col:2,span:2,tag:"Parfin",t:"Ateliers PEF",s:"",c:"y"},
+    {room:0,row:0,col:3,tag:"Parfin",t:"Club des parents",s:"Projet Parfin",c:"y"},
+    {room:0,row:1,col:3,tag:"Parfin",t:"Temps projet",s:"Suivi et mise en place",c:"y"},
+    {room:0,row:0,col:4,tag:"Parfin",t:"Accompagnement",s:"+ mise à dispo partenaires",c:"y"},
+    {room:0,row:1,col:4,tag:"Parfin",t:"Prépa du week-end",s:"Maillots, matériel…",c:"y"},
+    {room:0,row:0,col:5,span:2,tag:"Parfin",t:"RDV / logistique",s:"Avant & après matchs",c:"green"},
+    {room:0,row:0,col:6,span:2,tag:"Parfin",t:"RDV / logistique",s:"Avant & après matchs",c:"green"},
+    {room:1,row:0,col:0,span:2,wide:7,tag:"Permanent",t:"Administration du club",s:"Occupé en permanence par les dirigeants de Parfin",c:"black"},
+    {room:2,row:0,col:0,span:2,wide:7,tag:"Quotidien",t:"Joueurs · tous les jours",s:"Musculation et préparation physique",c:"grey"},
+    {room:3,row:0,col:0,span:2,free:true},
+    {room:3,row:0,col:1,span:2,free:true},
+    {room:3,row:0,col:2,span:2,tag:"CQP",t:"Formation CQP",s:"avec Omega Formation",c:"black"},
+    {room:3,row:0,col:3,span:2,free:true},
+    {room:3,row:0,col:4,span:2,tag:"CQP",t:"Formation CQP",s:"avec Omega Formation",c:"black"}
+  ]
+};
+function slidesEDT(){
+  const days = ["Lundi","Mardi","Mercredi","Jeudi","Vendredi","Samedi","Dimanche"];
+  let h = `<div class="edt"><div style="grid-column:1/span 2;grid-row:1"></div>`;
+  days.forEach((d,i) => h += `<div class="eday${i>4?" we":""}" style="grid-column:${i+3};grid-row:1">${d}</div>`);
+  EDT.rooms.forEach((r,ri) => {
+    const r0 = 2 + ri*2;
+    h += `<div class="eroom" style="grid-column:1;grid-row:${r0}/span 2"><b>${esc(r.name)}</b><span>${esc(r.lvl)}</span></div>`;
+    r.slots.forEach((sl,k) => h += `<div class="eslot" style="grid-column:2;grid-row:${r0+k}">${esc(sl)}</div>`);
+  });
+  EDT.cells.forEach(c => {
+    const r0 = 2 + c.room*2 + (c.row||0), col = 3 + c.col;
+    const pos = `grid-column:${col}/span ${c.wide||1};grid-row:${r0}/span ${c.span||1}`;
+    if (c.free){ h += `<div class="ecell free" style="${pos}">Libre</div>`; return; }
+    h += `<div class="ecell c-${c.c}${c.dash?" dash":""}${c.wide?" wide":""}" style="${pos}"><span class="etag">${esc(c.tag)}</span><b>${esc(c.t)}</b>${c.s?`<span class="es">${esc(c.s)}</span>`:""}</div>`;
+  });
+  h += `</div>`;
+  return [head("Emploi du temps", "Club house · semaine type", 0, 1) + h];
+}
 function slidesRDV(){ return rdvSlides(DATA.rdv, "Les RDV de Parfin", "Les prochains rendez-vous du club", ""); }
 function slidesRDVPartenaires(){ return rdvSlides(DATA.rdvpartenaires, "Les RDV de nos partenaires", "À ne pas manquer", "partners"); }
 
@@ -860,7 +979,7 @@ function build(){
   const res = theme(slidesResultats(), "sauge"), ag = theme(slidesMatchs(), "green");
   slides = [{html:slideAccueil(), nowm:true, cls:"t-yellow", bg:"yellow"}, ...theme(slidesDuJour(), "lin"), ...theme(slidesActu(), "ivoire").map(x => ({...x, nowm:true})),
             ...res, ...ag,
-            ...theme(slidesRDV(), "ivoire"), ...theme(slidesRDVPartenaires(), "ivoire"), ...theme(slidesAnnonces(), "champagne")];
+            ...theme(slidesRDV(), "ivoire"), ...theme(slidesRDVPartenaires(), "ivoire"), ...theme(slidesEDT(), "pierre").map(x => ({...x, nowm:true})), ...theme(slidesAnnonces(), "champagne")];
   if (!slides.length) slides = [`<div class="empty">Bienvenue au club house du ${esc(CONFIG.CLUB_NAME)} !<br><br>Aucune information à afficher pour le moment.</div>`];
   renderFooter();
   $("demo").style.display = isDemo ? "block" : "none";
@@ -881,10 +1000,10 @@ function next(){
   requestAnimationFrame(() => requestAnimationFrame(() => { p.style.transition = `width ${sl.sec || CONFIG.SLIDE_SECONDS}s linear`; p.style.width = "100%"; }));
   $("wm").style.opacity = sl.nowm ? 0 : "";
   const mn = document.querySelector("main");
-  const isLight = ["ivoire","sauge","champagne","lin"].includes(sl.bg);
+  const isLight = ["ivoire","sauge","champagne","lin","pierre"].includes(sl.bg);
   const wmSrc = isLight && CONFIG.CLUB_LOGO_DARK_URL ? CONFIG.CLUB_LOGO_DARK_URL : driveImg(CONFIG.CLUB_LOGO_URL);
   if (CONFIG.CLUB_LOGO_URL && $("wm").dataset.src !== wmSrc){ $("wm").style.backgroundImage = `url("${wmSrc}")`; $("wm").dataset.src = wmSrc; }
-  mn.className = (sl.bg ? "bg-" + sl.bg : "") + ((sl.bg || sl.nofield) ? " nofield" : "") + (["ivoire","sauge","champagne","lin"].includes(sl.bg) ? " light" : "");
+  mn.className = (sl.bg ? "bg-" + sl.bg : "") + ((sl.bg || sl.nofield) ? " nofield" : "") + (["ivoire","sauge","champagne","lin","pierre"].includes(sl.bg) ? " light" : "");
   timer = setTimeout(next, (sl.sec || CONFIG.SLIDE_SECONDS) * 1000);
 }
 
