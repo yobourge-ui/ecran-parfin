@@ -22,7 +22,7 @@
 /* =====================================================================
    CONFIGURATION — la seule partie à modifier
    ===================================================================== */
-const APP_VERSION = "20261119-161137";   // change à chaque nouvelle version : la TV se met à jour toute seule
+const APP_VERSION = "20261121-003450";   // change à chaque nouvelle version : la TV se met à jour toute seule
 const CONFIG = {
   // Identifiant du Google Sheet : c'est la partie entre /d/ et /edit dans l'adresse.
   // https://docs.google.com/spreadsheets/d/  >>> CET_IDENTIFIANT <<<  /edit
@@ -44,7 +44,8 @@ const CONFIG = {
   DUJOUR_SECONDS: 25,           // durée de l'écran « Du jour » (photo / événement)
   RDV_DAYS_AHEAD: 45,
   ACTU_DAYS_BACK: 30,           // « L'actu de Parfin » : faits marquants des N derniers jours
-  PHOTO_SECONDS: 6,             // durée des photos d'ambiance entre les écrans           // « Les RDV de Parfin » : événements des N prochains jours
+  PHOTO_SECONDS: 6,
+  PAUSE_MAX_MINUTES: 5,         // télécommande : reprise automatique après une pause oubliée             // durée des photos d'ambiance entre les écrans           // « Les RDV de Parfin » : événements des N prochains jours
 
   // Musique de fond : déposez sur GitHub, à côté de index.html, des fichiers nommés
   // musique1.mp3, musique2.mp3 … musique10.mp3 — ils sont trouvés et joués automatiquement (ordre aléatoire, en boucle).
@@ -260,7 +261,13 @@ const CONFIG = {
   main{transition:background-color .8s}
   main.nofield #field{display:none}
   main.bg-yellow{background:radial-gradient(ellipse at 30% 40%,#FFE15A 0%,#FFD100 45%,#F2B900 100%)}
-  main.bg-green{background:#2C5A48}
+  main.bg-green{background:
+    radial-gradient(ellipse 70% 65% at 12% 6%,rgba(120,200,150,.30) 0%,rgba(120,200,150,0) 70%),
+    radial-gradient(ellipse 60% 70% at 85% 45%,rgba(255,209,0,.07) 0%,rgba(255,209,0,0) 65%),
+    radial-gradient(ellipse 70% 60% at 95% 105%,rgba(0,20,12,.45) 0%,rgba(0,20,12,0) 70%),
+    linear-gradient(160deg,#236B4E 0%,#1B5A41 50%,#134433 100%)}
+  main.bg-green #wm{opacity:.17}
+  main.bg-green .row{box-shadow:0 2px 4px rgba(0,0,0,.10),0 10px 22px rgba(0,25,15,.18);border:1px solid rgba(255,255,255,.08)}
   .t-yellow .welcome-slide .kick{color:rgba(20,20,22,.7)}
   .t-yellow .welcome-slide h2{color:#141416}
   .welcome-slide h2.gaga{font-family:"GagalinLocal","Gagalin","Lilita One","Bebas Neue",sans-serif;font-size:150px;line-height:1;letter-spacing:2px;white-space:nowrap;margin:18px 0 22px}
@@ -317,6 +324,9 @@ const CONFIG = {
   /* ===== Emploi du temps du club house ===== */
   main.bg-pierre{background:radial-gradient(ellipse 70% 60% at 14% 8%,rgba(255,255,255,.5) 0%,rgba(255,255,255,0) 70%),radial-gradient(ellipse 65% 60% at 92% 100%,rgba(40,30,10,.10) 0%,rgba(40,30,10,0) 72%),#E6E0D2;color-scheme:only light;forced-color-adjust:none}
   main.bg-pierre.light{--ocre:#1B1D21;--txt3:#5A5548}
+  main.bg-lin .eslot{color:#2F2B25}
+  main.bg-lin .ecell.c-y{box-shadow:inset 0 0 0 2px rgba(20,20,22,.22),0 4px 12px rgba(60,40,0,.18)}
+  main.bg-lin .ecell.free{background:rgba(255,255,255,.5);color:#5A4A2A}
   .edt{display:grid;grid-template-columns:200px 112px repeat(7,minmax(0,1fr));grid-template-rows:44px repeat(8,minmax(0,1fr));gap:6px;height:calc(100% - 104px);color:#141414}
   .eday{background:#141414;color:var(--y);border-radius:7px;display:flex;align-items:center;justify-content:center;font-family:'Bebas Neue';font-size:27px;letter-spacing:2px}
   .eday.we{background:#3A3A3A}
@@ -365,6 +375,22 @@ const CONFIG = {
   .plateau .pc.me{background:var(--y);color:var(--ink);border-color:var(--y);font-weight:700}
   .plateau .pl{font-family:'Bebas Neue';font-size:24px;letter-spacing:1px;color:#fff;background:rgba(0,0,0,.35);border-radius:6px;padding:3px 12px 1px;white-space:nowrap}
   .plateau .pl.me{color:var(--y)}
+  /* en-tête : jamais de retour à la ligne */
+  header{gap:26px !important}
+  header .cd,header .weather,header .sun{padding-right:26px !important}
+  header .cd .j,header .cd .info,header .cd .info b,header .weather .d,header .sun div,header .clock .date,header .club h1,header .club p{white-space:nowrap}
+  header .cd .info b{max-width:330px;overflow:hidden;text-overflow:ellipsis}
+  header .weather .d{font-size:20px}
+  header .clock .date{font-size:22px}
+  /* ===== Télécommande ===== */
+  #pausebadge{position:absolute;top:22px;right:56px;z-index:20;display:none;align-items:center;gap:14px;background:#141416;color:var(--y);
+    font-family:'Bebas Neue';font-size:38px;letter-spacing:2px;padding:8px 22px 4px;border-radius:10px;box-shadow:0 8px 24px rgba(0,0,0,.35);border:2px solid var(--y)}
+  #pausebadge small{font-family:'Outfit';font-size:18px;letter-spacing:0;color:#ddd;font-weight:500}
+  #pausebadge.on{display:flex;animation:fadein .3s ease both}
+  #navflash{position:absolute;top:50%;left:50%;z-index:20;transform:translate(-50%,-50%);width:150px;height:150px;border-radius:50%;
+    background:rgba(20,20,22,.75);color:var(--y);font-size:70px;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none}
+  #navflash.on{animation:navf .7s ease both}
+  @keyframes navf{0%{opacity:0;transform:translate(-50%,-50%) scale(.6)}25%{opacity:1;transform:translate(-50%,-50%) scale(1)}100%{opacity:0;transform:translate(-50%,-50%) scale(1.15)}}
   /* ===== L'actu de Parfin : style appli d'actu ===== */
   .nx{display:flex;gap:30px;height:calc(100% - 112px)}
   .nx .hero{flex:1.5;min-width:0;position:relative;border-radius:20px;overflow:hidden;box-shadow:0 18px 40px rgba(40,25,0,.28)}
@@ -501,6 +527,8 @@ const CONFIG = {
     <div id="wm"></div>
     <div id="progress"></div>
     <div id="slides"></div>
+    <div id="pausebadge">⏸ PAUSE <small>OK pour reprendre</small></div>
+    <div id="navflash"></div>
     <div id="demo">DONNÉES DE DÉMONSTRATION</div>
   </main>
   <div id="rticker"><div class="lab">Résultats</div><div class="marq"><div class="track" id="rtrack"></div></div></div>
@@ -915,7 +943,7 @@ function slidesEDT(){
     h += `<div class="ecell c-${c.c}${c.dash?" dash":""}${c.wide?" wide":""}" style="${pos}"><span class="etag">${esc(c.tag)}</span><b>${esc(c.t)}</b>${c.s?`<span class="es">${esc(c.s)}</span>`:""}</div>`;
   });
   h += `</div>`;
-  return [head("Emploi du temps", "Club house · semaine type", 0, 1) + h];
+  return [head("Planning du Club-House", "Semaine type", 0, 1) + h];
 }
 function slidesRDV(){ return rdvSlides(DATA.rdv, "Les RDV de Parfin", "Les prochains rendez-vous du club", ""); }
 function slidesRDVPartenaires(){ return rdvSlides(DATA.rdvpartenaires, "Les RDV de nos partenaires", "À ne pas manquer", "partners"); }
@@ -973,20 +1001,46 @@ function renderFooter(){
 }
 
 /* ===================== ROTATION ===================== */
-let slides = [], idx = -1, timer = null;
+let slides = [], idx = -1, timer = null, paused = false, pauseTimer = null;
+
+/* ===================== TÉLÉCOMMANDE ===================== */
+// OK / Entrée / Play-Pause : pause - reprise · Flèche droite : page suivante · Flèche gauche : page précédente
+function freezeProgress(){ const p = $("progress"); const w = getComputedStyle(p).width; p.style.transition = "none"; p.style.width = w; }
+function setPause(on){
+  paused = on;
+  $("pausebadge").classList.toggle("on", on);
+  clearTimeout(pauseTimer);
+  if (on){
+    clearTimeout(timer); freezeProgress();
+    pauseTimer = setTimeout(() => setPause(false), CONFIG.PAUSE_MAX_MINUTES * 60000);
+  } else {
+    idx--; next();   // on relance la page en cours depuis le début
+  }
+}
+addEventListener("keydown", e => {
+  const k = e.key, c = e.keyCode;
+  if (k === "Enter" || k === " " || k === "MediaPlayPause" || c === 23 || c === 13 || c === 179 || c === 85){ e.preventDefault(); setPause(!paused); }
+  else if (k === "MediaPlay" || c === 126){ e.preventDefault(); if (paused) setPause(false); }
+  else if (k === "MediaPause" || c === 127){ e.preventDefault(); if (!paused) setPause(true); }
+  else if (k === "ArrowRight" || k === "MediaTrackNext" || k === "MediaFastForward" || c === 22 || c === 39){ e.preventDefault(); next(1); flash("▶"); }
+  else if (k === "ArrowLeft" || k === "MediaTrackPrevious" || k === "MediaRewind" || c === 21 || c === 37){ e.preventDefault(); next(-1); flash("◀"); }
+});
+function flash(t){ const f = $("navflash"); f.textContent = t; f.classList.remove("on"); void f.offsetWidth; f.classList.add("on"); }
 function build(){
   const theme = (arr, bg) => arr.map(x => typeof x === "string" ? {html:x, bg} : {...x, bg});
   const res = theme(slidesResultats(), "sauge"), ag = theme(slidesMatchs(), "green");
   slides = [{html:slideAccueil(), nowm:true, cls:"t-yellow", bg:"yellow"}, ...theme(slidesDuJour(), "lin"), ...theme(slidesActu(), "ivoire").map(x => ({...x, nowm:true})),
             ...res, ...ag,
-            ...theme(slidesRDV(), "ivoire"), ...theme(slidesRDVPartenaires(), "ivoire"), ...theme(slidesEDT(), "pierre").map(x => ({...x, nowm:true})), ...theme(slidesAnnonces(), "champagne")];
+            ...theme(slidesRDV(), "ivoire"), ...theme(slidesRDVPartenaires(), "ivoire"), ...theme(slidesEDT(), "lin").map(x => ({...x, nowm:true})), ...theme(slidesAnnonces(), "champagne")];
   if (!slides.length) slides = [`<div class="empty">Bienvenue au club house du ${esc(CONFIG.CLUB_NAME)} !<br><br>Aucune information à afficher pour le moment.</div>`];
   renderFooter();
   $("demo").style.display = isDemo ? "block" : "none";
 }
-function next(){
-  idx++;
+function next(step){
+  clearTimeout(timer);
+  idx += (step === -1 ? -1 : 1);
   if (idx >= slides.length){ idx = 0; build(); }
+  if (idx < 0) idx = slides.length - 1;
   const box = $("slides");
   const old = box.querySelector(".slide.on");
   const el = document.createElement("div");
@@ -1004,6 +1058,7 @@ function next(){
   const wmSrc = isLight && CONFIG.CLUB_LOGO_DARK_URL ? CONFIG.CLUB_LOGO_DARK_URL : driveImg(CONFIG.CLUB_LOGO_URL);
   if (CONFIG.CLUB_LOGO_URL && $("wm").dataset.src !== wmSrc){ $("wm").style.backgroundImage = `url("${wmSrc}")`; $("wm").dataset.src = wmSrc; }
   mn.className = (sl.bg ? "bg-" + sl.bg : "") + ((sl.bg || sl.nofield) ? " nofield" : "") + (["ivoire","sauge","champagne","lin","pierre"].includes(sl.bg) ? " light" : "");
+  if (paused){ setTimeout(() => freezeProgress(), 60); return; }
   timer = setTimeout(next, (sl.sec || CONFIG.SLIDE_SECONDS) * 1000);
 }
 
