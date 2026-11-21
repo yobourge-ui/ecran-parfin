@@ -22,7 +22,7 @@
 /* =====================================================================
    CONFIGURATION — la seule partie à modifier
    ===================================================================== */
-const APP_VERSION = "20261121-233109";   // change à chaque nouvelle version : la TV se met à jour toute seule
+const APP_VERSION = "20261122-001041";   // change à chaque nouvelle version : la TV se met à jour toute seule
 const CONFIG = {
   // Identifiant du Google Sheet : c'est la partie entre /d/ et /edit dans l'adresse.
   // https://docs.google.com/spreadsheets/d/  >>> CET_IDENTIFIANT <<<  /edit
@@ -47,6 +47,7 @@ const CONFIG = {
     reseaux: [{nom:"Facebook", compte:"[COMPTE]"}, {nom:"Instagram", compte:"[@COMPTE]"}, {nom:"TikTok", compte:"[@COMPTE]"}]
   },
   RESULTATS_PAR_PAGE: 5,        // résultats : nombre de matchs maximum par écran
+  HORLOGE_SECONDS: 45,          // horloge plein écran en fin de rotation
   CLUB_MATCH: /parfin/i,        // repère les équipes du club pour les surligner
 
   SLIDE_SECONDS: 15,            // durée d'affichage de chaque écran
@@ -463,6 +464,42 @@ const CONFIG = {
   .cls.dense2 .ctab th{padding:4px 8px 1px} .cls.dense2 .ctab .ch{padding:6px 18px 2px} .cls.dense2 .ctab .ch span{font-size:34px}
   .ctab .csrc{font-size:15px;font-style:italic;color:#7A6656;padding:6px 16px 8px;border-top:1px solid rgba(43,26,15,.12);background:rgba(43,26,15,.04)}
   .ctab .ch .lvl{font-style:normal;font-family:'Bebas Neue';font-size:22px;letter-spacing:1.5px;background:var(--y);color:#141416;padding:2px 10px 0;border-radius:4px;align-self:center}
+  /* ===== Horloge plein écran ===== */
+  #stage.fs header,#stage.fs #rticker,#stage.fs footer,#stage.fs #wmtopbox,#stage.fs #progress{opacity:0;transition:opacity .6s}
+  #stage.fs main{top:0 !important;bottom:0 !important}
+  header,#rticker,footer,#wmtopbox{transition:opacity .6s}
+  #stage.slowfade header,#stage.slowfade #rticker,#stage.slowfade footer,#stage.slowfade #wmtopbox{transition:opacity 1.8s ease}
+  .clockfs{position:absolute;inset:0;background:radial-gradient(ellipse at 50% 40%,#1a1b1e 0%,#0a0a0b 70%);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:46px}
+  .board{display:flex;align-items:center;gap:22px}
+  .flap{position:relative;display:inline-block;perspective:1400px;color:#F4F2EE;font-family:'Bebas Neue';--d:120ms}
+  .flap.big{width:250px;height:360px;font-size:330px}
+  .flap.sm{width:46px;height:68px;font-size:56px;color:#F4F2EE}
+  .flap>span{position:absolute;left:0;right:0;height:50%;overflow:hidden;background:linear-gradient(180deg,#2c2e33,#232529);border-radius:14px 14px 0 0;backface-visibility:hidden}
+  .flap.sm>span{border-radius:5px 5px 0 0}
+  .flap .up,.flap .ft{top:0}
+  .flap .dn,.flap .fb{bottom:0;border-radius:0 0 14px 14px;background:linear-gradient(180deg,#1e2023,#26282c)}
+  .flap.sm .dn,.flap.sm .fb{border-radius:0 0 5px 5px}
+  .flap b{position:absolute;left:0;right:0;text-align:center;font-weight:400;line-height:1}
+  .flap.big b{height:360px;line-height:360px}
+  .flap.sm b{height:68px;line-height:70px}
+  .flap .up b,.flap .ft b{top:0}
+  .flap .dn b,.flap .fb b{bottom:0}
+  .flap::after{content:"";position:absolute;left:0;right:0;top:50%;height:4px;margin-top:-2px;background:#0a0a0b;z-index:5}
+  .flap.sm::after{height:2px;margin-top:-1px}
+  .flap::before{content:"";position:absolute;inset:0;border-radius:14px;box-shadow:0 18px 40px rgba(0,0,0,.6),inset 0 0 0 1px rgba(255,255,255,.04);pointer-events:none}
+  .flap .ft{transform-origin:50% 100%;animation:flipT var(--d) ease-in forwards;z-index:3}
+  .flap .fb{transform-origin:50% 0;transform:rotateX(90deg);animation:flipB var(--d) var(--d) ease-out forwards;z-index:3}
+  @keyframes flipT{to{transform:rotateX(-90deg)}}
+  @keyframes flipB{to{transform:rotateX(0)}}
+  .colon{display:flex;flex-direction:column;gap:70px;padding:0 6px}
+  .colon i{width:34px;height:34px;border-radius:8px;background:var(--y);box-shadow:0 0 30px rgba(255,209,0,.35);animation:blink 2s steps(1) infinite}
+  @keyframes blink{50%{opacity:.25}}
+  .drow{display:flex;gap:6px;align-items:center}
+  .drow .gap{width:26px}
+  .dep{display:flex;align-items:center;gap:22px;margin-top:-26px;width:1640px;justify-content:flex-start;font-family:'Bebas Neue';letter-spacing:3px}
+  .dep .dl{background:var(--y);color:#141416;font-size:30px;padding:6px 16px 2px;border-radius:6px;min-width:190px;text-align:center;flex:none;white-space:nowrap}
+  .dep .dv{color:var(--y);font-size:38px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
+  .clockfs .clogo{position:absolute;right:56px;bottom:40px;height:110px;opacity:.85}
   /* ===== L'actu de Parfin : style appli d'actu ===== */
   .nx{display:flex;gap:30px;height:calc(100% - 112px)}
   .nx .hero{flex:1.5;min-width:0;position:relative;border-radius:20px;overflow:hidden;box-shadow:0 18px 40px rgba(40,25,0,.28)}
@@ -887,7 +924,7 @@ function slidesAnnonces(){
   }).map(a => {
     const f = parseDate(a.fin);
     const img = driveImg(a.image);
-    return head("Messages du club", "", 0, 1) +
+    return head("Message du club", "", 0, 1) +
       `<div class="ann"><div class="txt"><h3>${esc(a.titre)}</h3><p>${esc(a.texte)}</p>${a.quand?`<div class="when">${esc(a.quand)}</div>`:""}</div>
        ${img?`<img src="${esc(img)}" alt="">`:""}</div>`;
   });
@@ -1049,6 +1086,53 @@ function slideContact(){
     ${C.reseaux.length ? `<div class="sfollow">Suivez-nous</div><div class="soc">${C.reseaux.map(r => `<div class="sb">${r.logo ? `<img class="slogo" src="${esc(driveImg(r.logo))}" alt="" onerror="this.remove()">` : ""}<div><span class="sn">${esc(r.nom)}</span><b>${esc(r.compte)}</b></div></div>`).join("")}</div>` : ""}
     <div class="cfoot">Allez PARFIN !</div></div>${photo}</div>`;
 }
+/* ===================== HORLOGE À PALETTES (aéroport) ===================== */
+function flapHTML(cls, ch){ return `<span class="flap ${cls}" data-v="${esc(ch)}"><span class="up"><b>${esc(ch)}</b></span><span class="dn"><b>${esc(ch)}</b></span></span>`; }
+function setFlap(el, ch, dur){
+  const cur = el.dataset.v; if (cur === ch) return;
+  el.dataset.v = ch; el.style.setProperty("--d", dur + "ms");
+  el.querySelectorAll(".ft,.fb").forEach(x => x.remove());
+  el.querySelector(".up b").textContent = ch;                    // haut : nouveau chiffre (caché par la palette qui tombe)
+  el.insertAdjacentHTML("beforeend", `<span class="ft"><b>${esc(cur)}</b></span><span class="fb"><b>${esc(ch)}</b></span>`);
+  setTimeout(() => { el.querySelector(".dn b").textContent = ch; el.querySelectorAll(".ft,.fb").forEach(x => x.remove()); }, dur * 2 + 30);
+}
+function slideHorloge(){
+  const DJ = ["DIMANCHE","LUNDI","MARDI","MERCREDI","JEUDI","VENDREDI","SAMEDI"];
+  const MS = ["JANVIER","FÉVRIER","MARS","AVRIL","MAI","JUIN","JUILLET","AOÛT","SEPTEMBRE","OCTOBRE","NOVEMBRE","DÉCEMBRE"];
+  const d = nowLocal(), date = `${DJ[d.getDay()]} ${d.getDate()} ${MS[d.getMonth()]}`;
+  const n = window.__nextMatch;
+  const dep = n ? `${n.categorie||""} · ${n.exterieur ? (n.domicile + " – " + n.exterieur) : n.domicile} · ${fmtDayShort(n._d)}${n.heure ? " · " + fmtHour(n.heure) : ""}`.toUpperCase() : "";
+  // prochain RDV de Parfin (onglet RDV uniquement, pas les partenaires)
+  const nowM = d.getHours()*60 + d.getMinutes(), t0 = today0();
+  const r = (DATA.rdv||[]).map(x => ({...x, _d: parseDate(x.date)})).filter(x => x._d && x.titre)
+    .filter(x => x._d > t0 || (x._d.getTime() === t0.getTime() && hmin(x.heure) + 60 > nowM))
+    .sort((a,b) => a._d-b._d || hmin(a.heure)-hmin(b.heure))[0];
+  const rdvTxt = r ? [r.titre, r.lieu, fmtDayShort(r._d), r.heure ? fmtHour(r.heure) : ""].filter(Boolean).join(" · ").toUpperCase() : "";
+  const html = `<div class="clockfs">
+    <div class="board">${flapHTML("big","0")}${flapHTML("big","0")}<span class="colon"><i></i><i></i></span>${flapHTML("big","0")}${flapHTML("big","0")}</div>
+    <div class="drow">${[...date].map(c => c === " " ? `<span class="gap"></span>` : flapHTML("sm", " ")).join("")}</div>
+    ${dep ? `<div class="dep"><span class="dl">Prochain match</span><span class="dv">${esc(dep)}</span></div>` : ""}
+    ${rdvTxt ? `<div class="dep"><span class="dl">Prochain RDV</span><span class="dv">${esc(rdvTxt)}</span></div>` : ""}
+    ${CONFIG.CLUB_LOGO_URL ? `<img class="clogo" src="${CONFIG.CLUB_LOGO_URL}" alt="">` : ""}</div>`;
+  return {html, fs:true, nowm:true, sec:CONFIG.HORLOGE_SECONDS, onshow: el => {
+    const big = [...el.querySelectorAll(".flap.big")], sm = [...el.querySelectorAll(".flap.sm")];
+    const letters = [...date].filter(c => c !== " ");
+    const hhmm = () => { const t = nowLocal(); return String(t.getHours()).padStart(2,"0") + String(t.getMinutes()).padStart(2,"0"); };
+    // 1) arrivée : les palettes défilent comme un tableau des départs, puis s'arrêtent sur la vraie valeur
+    const shuffle = (els, targets, pool, steps) => els.forEach((f, i) => {
+      let k = 0; const total = steps + Math.min(i, 6);
+      const tick = () => { if (!document.body.contains(f)) return;
+        if (k++ < total){ setFlap(f, pool[Math.floor(Math.random()*pool.length)], 55); setTimeout(tick, 120); }
+        else setFlap(f, targets[i], 90); };
+      setTimeout(tick, i * 45);
+    });
+    shuffle(big, [...hhmm()], "0123456789", 8);
+    shuffle(sm, letters, "ABCDEFGHIJKLMNOPRSTUVÉ", 5);
+    // 2) ensuite : bascule réelle à chaque changement de minute
+    const iv = setInterval(() => { if (!document.body.contains(el)){ clearInterval(iv); return; }
+      [...hhmm()].forEach((c, i) => setFlap(big[i], c, 160)); }, 1000);
+  }};
+}
 function slidesRDV(){ return rdvSlides(DATA.rdv, "Les RDV de Parfin", "Les prochains rendez-vous du club", ""); }
 function slidesRDVPartenaires(){ return rdvSlides(DATA.rdvpartenaires, "Les RDV de nos partenaires", "À ne pas manquer", "partners"); }
 
@@ -1142,7 +1226,7 @@ function build(){
   const res = theme(slidesResultats(), "sauge"), ag = theme(slidesMatchs(), "green");
   slides = [{html:slideAccueil(), nowm:true, cls:"t-yellow", bg:"yellow"}, ...theme(slidesDuJour(), "lin"), ...theme(slidesActu(), "ivoire"),
             ...res, ...theme(slidesClassementsMulti(), "cognac"), ...ag,
-            ...theme(slidesRDV(), "ivoire"), ...theme(slidesRDVPartenaires(), "ivoire"), ...theme(slidesEDT(), "champagne"), ...theme(slidesAnnonces(), "lin"), {html:slideContact(), nowm:true, cls:"photo"}];
+            ...theme(slidesRDV(), "ivoire"), ...theme(slidesRDVPartenaires(), "ivoire"), ...theme(slidesEDT(), "champagne"), ...theme(slidesAnnonces(), "lin"), {html:slideContact(), nowm:true, cls:"photo"}, (renderCountdown(), slideHorloge())];
   if (!slides.length) slides = [`<div class="empty">Bienvenue au club house du ${esc(CONFIG.CLUB_NAME)} !<br><br>Aucune information à afficher pour le moment.</div>`];
   renderFooter();
   $("demo").style.display = isDemo ? "block" : "none";
@@ -1157,9 +1241,14 @@ function next(step){
   const el = document.createElement("div");
   const sl = typeof slides[idx] === "string" ? {html: slides[idx]} : slides[idx];
   el.className = "slide " + (sl.cls || ""); el.innerHTML = sl.html;
+  const wasFs = $("stage").classList.contains("fs"), slow = !!sl.fs || wasFs;   // transition douce vers / depuis l'horloge
+  if (slow){ el.style.transition = "opacity 1.8s ease"; if (old) old.style.transition = "opacity 1.8s ease"; }
+  $("stage").classList.toggle("slowfade", slow);
   box.appendChild(el);
   requestAnimationFrame(() => requestAnimationFrame(() => el.classList.add("on")));
-  if (old){ old.classList.remove("on"); setTimeout(() => old.remove(), 900); }
+  $("stage").classList.toggle("fs", !!sl.fs);
+  if (sl.onshow) setTimeout(() => sl.onshow(el), 80);
+  if (old){ old.classList.remove("on"); setTimeout(() => old.remove(), slow ? 1900 : 900); }
   const p = $("progress");
   p.style.transition = "none"; p.style.width = "0";
   requestAnimationFrame(() => requestAnimationFrame(() => { p.style.transition = `width ${sl.sec || CONFIG.SLIDE_SECONDS}s linear`; p.style.width = "100%"; }));
@@ -1189,6 +1278,7 @@ function renderCountdown(){
     .map(m => ({...m, _k: kick(m)}))
     .filter(m => m._k.getTime() + CONFIG.COUNTDOWN_LIVE_MINUTES * 60000 > now.getTime())   // on garde le match pendant qu'il se joue
     .sort((a,b) => a._k - b._k)[0];
+  window.__nextMatch = next || null;
   if (!next){ box.innerHTML = ""; return; }
   const ms = next._k - now, days = Math.round((next._d - t0) / 86400000);
   let big;
