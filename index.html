@@ -22,7 +22,7 @@
 /* =====================================================================
    CONFIGURATION — la seule partie à modifier
    ===================================================================== */
-const APP_VERSION = "20261122-001041";   // change à chaque nouvelle version : la TV se met à jour toute seule
+const APP_VERSION = "20261122-004906";   // change à chaque nouvelle version : la TV se met à jour toute seule
 const CONFIG = {
   // Identifiant du Google Sheet : c'est la partie entre /d/ et /edit dans l'adresse.
   // https://docs.google.com/spreadsheets/d/  >>> CET_IDENTIFIANT <<<  /edit
@@ -94,8 +94,8 @@ const CONFIG = {
   .crest img{width:100%;height:100%;object-fit:contain}
   .crest.logo{background:transparent;border:none;box-shadow:none;border-radius:0;width:104px;height:124px;padding:4px}
   .club{flex:none}
-  .club h1{font-family:'Bebas Neue';font-weight:400;letter-spacing:1px;font-size:66px;line-height:1;letter-spacing:2px;color:var(--y)}
-  .club p.mail{text-transform:none;font-style:italic;letter-spacing:1px;font-size:26px;color:#CFCFC8}
+  .club h1{font-family:"GagalinLocal","Gagalin","Lilita One","Bebas Neue",sans-serif;font-weight:400;font-size:62px;line-height:.95;letter-spacing:2px;color:var(--y)}
+  .club p.mail{font-family:'Outfit',sans-serif;text-transform:uppercase;font-style:normal;font-weight:500;letter-spacing:9px;font-size:20px;color:#FFFFFF;margin-top:2px}
   .club p{font-size:24px;color:var(--mute);margin-top:6px;letter-spacing:3px;text-transform:uppercase}
   .hspace{flex:1}
   .cd{display:flex;align-items:center;gap:20px;padding-right:36px;border-right:2px solid var(--line)}
@@ -494,10 +494,11 @@ const CONFIG = {
   .colon{display:flex;flex-direction:column;gap:70px;padding:0 6px}
   .colon i{width:34px;height:34px;border-radius:8px;background:var(--y);box-shadow:0 0 30px rgba(255,209,0,.35);animation:blink 2s steps(1) infinite}
   @keyframes blink{50%{opacity:.25}}
-  .drow{display:flex;gap:6px;align-items:center}
+  .drow{display:flex;gap:6px;align-items:center;margin-bottom:44px}
   .drow .gap{width:26px}
-  .dep{display:flex;align-items:center;gap:22px;margin-top:-26px;width:1640px;justify-content:flex-start;font-family:'Bebas Neue';letter-spacing:3px}
-  .dep .dl{background:var(--y);color:#141416;font-size:30px;padding:6px 16px 2px;border-radius:6px;min-width:190px;text-align:center;flex:none;white-space:nowrap}
+  .deps{display:flex;flex-direction:column;align-items:flex-start;gap:20px;max-width:1720px}
+  .dep{display:flex;align-items:center;gap:22px;max-width:1720px;font-family:'Bebas Neue';letter-spacing:3px}
+  .dep .dl{background:var(--y);color:#141416;font-size:30px;padding:6px 16px 2px;border-radius:6px;min-width:230px;box-sizing:border-box;text-align:center;flex:none;white-space:nowrap}
   .dep .dv{color:var(--y);font-size:38px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
   .clockfs .clogo{position:absolute;right:56px;bottom:40px;height:110px;opacity:.85}
   /* ===== L'actu de Parfin : style appli d'actu ===== */
@@ -567,6 +568,10 @@ const CONFIG = {
   .rdv-list.partners .rdv{border-left-color:var(--w)}
   .rdv-list.partners .day{background:var(--w)}
   .rdv-list.partners .wd{color:var(--w)}
+  .rdv .body{display:grid;grid-template-columns:150px minmax(0,1fr);column-gap:18px;align-items:center}
+  .rdv .body .wd{width:auto;align-self:center}
+  .rdv .tc{min-width:0}
+  .rdv .top{display:flex;align-items:baseline;gap:16px;min-width:0}
   .rdv .det{color:var(--mute)}
   .empty{font-size:40px;color:var(--mute);margin-top:80px;text-align:center}
 
@@ -970,8 +975,8 @@ function rdvSlides(rows, title, sub, variant){
       const meta = [r.heure ? `🕒 ${esc(fmtHour(r.heure))}` : "", r.lieu ? `📍 ${esc(r.lieu)}` : ""].filter(Boolean);
       const org = r.partenaire ? `<span class="org">${esc(r.partenaire)}</span>` : "";
       return `<div class="rdv"><div class="day"><div class="n">${r._d.getDate()}</div><div class="m">${MO[r._d.getMonth()]}</div></div>
-        <div class="body"><div class="top"><div class="wd">${DAYS[r._d.getDay()]}</div><div class="t">${esc(r.titre)}</div>${org}</div>
-        ${(meta.length||r.detail)?`<div class="meta">${meta.map(m=>`<span>${m}</span>`).join("")}${r.detail?`<span class="det">${esc(r.detail)}</span>`:""}</div>`:""}</div>
+        <div class="body"><div class="wd">${DAYS[r._d.getDay()]}</div><div class="tc"><div class="top"><div class="t">${esc(r.titre)}</div>${org}</div>
+        ${(meta.length||r.detail)?`<div class="meta">${meta.map(m=>`<span>${m}</span>`).join("")}${r.detail?`<span class="det">${esc(r.detail)}</span>`:""}</div>`:""}</div></div>
         ${when(r._d)}</div>`;
     }).join("") + `</div>`);
 }
@@ -1111,8 +1116,7 @@ function slideHorloge(){
   const html = `<div class="clockfs">
     <div class="board">${flapHTML("big","0")}${flapHTML("big","0")}<span class="colon"><i></i><i></i></span>${flapHTML("big","0")}${flapHTML("big","0")}</div>
     <div class="drow">${[...date].map(c => c === " " ? `<span class="gap"></span>` : flapHTML("sm", " ")).join("")}</div>
-    ${dep ? `<div class="dep"><span class="dl">Prochain match</span><span class="dv">${esc(dep)}</span></div>` : ""}
-    ${rdvTxt ? `<div class="dep"><span class="dl">Prochain RDV</span><span class="dv">${esc(rdvTxt)}</span></div>` : ""}
+    ${(dep || rdvTxt) ? `<div class="deps">${dep ? `<div class="dep"><span class="dl">Prochain match</span><span class="dv">${esc(dep)}</span></div>` : ""}${rdvTxt ? `<div class="dep"><span class="dl">Prochain RDV</span><span class="dv">${esc(rdvTxt)}</span></div>` : ""}</div>` : ""}
     ${CONFIG.CLUB_LOGO_URL ? `<img class="clogo" src="${CONFIG.CLUB_LOGO_URL}" alt="">` : ""}</div>`;
   return {html, fs:true, nowm:true, sec:CONFIG.HORLOGE_SECONDS, onshow: el => {
     const big = [...el.querySelectorAll(".flap.big")], sm = [...el.querySelectorAll(".flap.sm")];
@@ -1254,7 +1258,6 @@ function next(step){
   requestAnimationFrame(() => requestAnimationFrame(() => { p.style.transition = `width ${sl.sec || CONFIG.SLIDE_SECONDS}s linear`; p.style.width = "100%"; }));
   $("wm").style.opacity = sl.nowm ? 0 : "";
   syncTopWatermark(!sl.nowm);
-  $("clubSub").style.visibility = sl.html.includes('class="contact"') ? "hidden" : "";
   const mn = document.querySelector("main");
   const isLight = ["ivoire","sauge","champagne","lin","pierre"].includes(sl.bg);
   const wmSrc = isLight && CONFIG.CLUB_LOGO_DARK_URL ? CONFIG.CLUB_LOGO_DARK_URL : driveImg(CONFIG.CLUB_LOGO_URL);
@@ -1359,7 +1362,7 @@ function fit(){
   if (window.visualViewport) visualViewport.addEventListener("resize", fit);
   addEventListener("load", fit); setTimeout(fit, 1500); setInterval(fit, 10000);
   $("clubName").textContent = CONFIG.CLUB_NAME;
-  $("clubSub").textContent = CONFIG.CLUB_EMAIL || CONFIG.CLUB_SUBTITLE;
+  $("clubSub").textContent = "CLUB-HOUSE";
   if (CONFIG.CLUB_LOGO_URL){
     const src = driveImg(CONFIG.CLUB_LOGO_URL);
     $("crest").innerHTML = `<img src="${esc(src)}" alt="">`; $("crest").classList.add("logo");
