@@ -22,7 +22,7 @@
 /* =====================================================================
    CONFIGURATION — la seule partie à modifier
    ===================================================================== */
-const APP_VERSION = "20261121-225430";   // change à chaque nouvelle version : la TV se met à jour toute seule
+const APP_VERSION = "20261121-233109";   // change à chaque nouvelle version : la TV se met à jour toute seule
 const CONFIG = {
   // Identifiant du Google Sheet : c'est la partie entre /d/ et /edit dans l'adresse.
   // https://docs.google.com/spreadsheets/d/  >>> CET_IDENTIFIANT <<<  /edit
@@ -183,6 +183,9 @@ const CONFIG = {
 
   /* filigrane + écran d'accueil */
   #field{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
+  main{overflow:hidden}
+  #wmtopbox{position:absolute;left:0;top:0;width:1920px;height:140px;overflow:hidden;pointer-events:none;z-index:5}
+  #wmtop{position:absolute;background:center/contain no-repeat;opacity:0;transition:opacity .8s}
   #wm{position:absolute;right:-40px;top:50%;width:860px;height:860px;transform:translateY(-50%);
     background:center/contain no-repeat;opacity:.13;pointer-events:none;display:none;transition:opacity .8s}
   .welcome-slide{display:flex;align-items:center;gap:60px;height:100%;padding:0 40px}
@@ -567,6 +570,7 @@ const CONFIG = {
     <div class="clock"><div class="time" id="time">--:--</div><div class="date" id="date"></div></div>
     <div id="status"></div>
   </header>
+  <div id="wmtopbox"><div id="wmtop"></div></div>
   <main>
     <svg id="field" viewBox="0 0 1920 784" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
       <defs>
@@ -1105,6 +1109,13 @@ let slides = [], idx = -1, timer = null, paused = false, pauseTimer = null;
 
 /* ===================== TÉLÉCOMMANDE ===================== */
 // OK / Entrée / Play-Pause : pause - reprise · Flèche droite : page suivante · Flèche gauche : page précédente
+function syncTopWatermark(on){
+  const t = $("wmtop"), w = $("wm"); if (!t || !w || !CONFIG.CLUB_LOGO_URL) return;
+  if (!t.dataset.ok){ t.style.backgroundImage = `url("${driveImg(CONFIG.CLUB_LOGO_URL)}")`; t.dataset.ok = 1; }
+  const st = $("stage").getBoundingClientRect(), sc = st.width / 1920 || 1, r = w.getBoundingClientRect();
+  if (r.width){ Object.assign(t.style, {left:(r.left-st.left)/sc+"px", top:(r.top-st.top)/sc+"px", width:r.width/sc+"px", height:r.height/sc+"px"}); }
+  t.style.opacity = on ? .14 : 0;
+}
 function freezeProgress(){ const p = $("progress"); const w = getComputedStyle(p).width; p.style.transition = "none"; p.style.width = w; }
 function setPause(on){
   paused = on;
@@ -1129,9 +1140,9 @@ function flash(t){ const f = $("navflash"); f.textContent = t; f.classList.remov
 function build(){
   const theme = (arr, bg) => arr.map(x => typeof x === "string" ? {html:x, bg} : {...x, bg});
   const res = theme(slidesResultats(), "sauge"), ag = theme(slidesMatchs(), "green");
-  slides = [{html:slideAccueil(), nowm:true, cls:"t-yellow", bg:"yellow"}, ...theme(slidesDuJour(), "lin"), ...theme(slidesActu(), "ivoire").map(x => ({...x, nowm:true})),
+  slides = [{html:slideAccueil(), nowm:true, cls:"t-yellow", bg:"yellow"}, ...theme(slidesDuJour(), "lin"), ...theme(slidesActu(), "ivoire"),
             ...res, ...theme(slidesClassementsMulti(), "cognac"), ...ag,
-            ...theme(slidesRDV(), "ivoire"), ...theme(slidesRDVPartenaires(), "ivoire"), ...theme(slidesEDT(), "champagne").map(x => ({...x, nowm:true})), ...theme(slidesAnnonces(), "lin"), {html:slideContact(), nowm:true, cls:"photo"}];
+            ...theme(slidesRDV(), "ivoire"), ...theme(slidesRDVPartenaires(), "ivoire"), ...theme(slidesEDT(), "champagne"), ...theme(slidesAnnonces(), "lin"), {html:slideContact(), nowm:true, cls:"photo"}];
   if (!slides.length) slides = [`<div class="empty">Bienvenue au club house du ${esc(CONFIG.CLUB_NAME)} !<br><br>Aucune information à afficher pour le moment.</div>`];
   renderFooter();
   $("demo").style.display = isDemo ? "block" : "none";
@@ -1153,6 +1164,7 @@ function next(step){
   p.style.transition = "none"; p.style.width = "0";
   requestAnimationFrame(() => requestAnimationFrame(() => { p.style.transition = `width ${sl.sec || CONFIG.SLIDE_SECONDS}s linear`; p.style.width = "100%"; }));
   $("wm").style.opacity = sl.nowm ? 0 : "";
+  syncTopWatermark(!sl.nowm);
   $("clubSub").style.visibility = sl.html.includes('class="contact"') ? "hidden" : "";
   const mn = document.querySelector("main");
   const isLight = ["ivoire","sauge","champagne","lin","pierre"].includes(sl.bg);
