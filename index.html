@@ -17,12 +17,12 @@
   @font-face{font-family:"GagalinLocal";src:url("Gagalin-Regular.otf") format("opentype"),url("Gagalin-Regular.ttf") format("truetype"),url("gagalin.otf") format("opentype");font-display:swap}
 </style>
 <link href="https://db.onlinewebfonts.com/c/061159ef9c2398b970d2cd5f5580f7cd?family=Gagalin" rel="stylesheet">
-<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Lilita+One&family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Lilita+One&family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=Fredoka:wght@500;600;700&family=Luckiest+Guy&family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
 <script>
 /* =====================================================================
    CONFIGURATION — la seule partie à modifier
    ===================================================================== */
-const APP_VERSION = "20261121-114840";   // change à chaque nouvelle version : la TV se met à jour toute seule
+const APP_VERSION = "20261121-225430";   // change à chaque nouvelle version : la TV se met à jour toute seule
 const CONFIG = {
   // Identifiant du Google Sheet : c'est la partie entre /d/ et /edit dans l'adresse.
   // https://docs.google.com/spreadsheets/d/  >>> CET_IDENTIFIANT <<<  /edit
@@ -39,6 +39,14 @@ const CONFIG = {
   // Compte à rebours « J- » dans l'en-tête : prochain match de cette catégorie, pris dans l'onglet Matchs
   COUNTDOWN_CATEGORY: "U17",
   COUNTDOWN_LIVE_MINUTES: 110,  // « Match en cours » affiché pendant cette durée après le coup d'envoi
+  CLASSEMENT_PAGES: [["U13 Foot à 8","U13 Foot à 11"], ["U15 A","U15 B","U17"], ["U18F","U21","Seniors"]],
+  CONTACT_ICONE_MAIL: true,     // page contact : enveloppe à côté de l'e-mail (false pour la retirer)
+  CONTACT: {
+    email: "contact@parfin.re", tel: "", adresse: "[ADRESSE DU CLUB HOUSE], 97440 Saint-André", site: "[SITE INTERNET]",
+    photo: "",
+    reseaux: [{nom:"Facebook", compte:"[COMPTE]"}, {nom:"Instagram", compte:"[@COMPTE]"}, {nom:"TikTok", compte:"[@COMPTE]"}]
+  },
+  RESULTATS_PAR_PAGE: 5,        // résultats : nombre de matchs maximum par écran
   CLUB_MATCH: /parfin/i,        // repère les équipes du club pour les surligner
 
   SLIDE_SECONDS: 15,            // durée d'affichage de chaque écran
@@ -393,6 +401,65 @@ const CONFIG = {
     background:rgba(20,20,22,.75);color:var(--y);font-size:70px;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none}
   #navflash.on{animation:navf .7s ease both}
   @keyframes navf{0%{opacity:0;transform:translate(-50%,-50%) scale(.6)}25%{opacity:1;transform:translate(-50%,-50%) scale(1)}100%{opacity:0;transform:translate(-50%,-50%) scale(1.15)}}
+  /* ===== Classements (plusieurs par page) ===== */
+  .cls{display:grid;gap:26px;height:calc(100% - 112px)}
+  .cls.n3{grid-template-columns:repeat(3,1fr)} .cls.n2{grid-template-columns:repeat(2,1fr)} .cls.n1{grid-template-columns:minmax(0,900px)}
+  .ctab{background:rgba(255,255,255,.88);border-radius:14px;overflow:hidden;display:flex;flex-direction:column;box-shadow:0 2px 4px rgba(10,30,60,.08),0 12px 26px rgba(10,30,60,.14)}
+  .ctab .ch{background:#0C2340;color:var(--y);display:flex;align-items:baseline;gap:14px;padding:8px 20px 4px}
+  .ctab .ch span{font-family:'Bebas Neue';font-size:40px;letter-spacing:1.5px}
+  .ctab .ch em{font-style:normal;font-size:18px;color:rgba(255,255,255,.75)}
+  .ctab table{width:100%;border-collapse:collapse;font-size:22px;color:#0C2340}
+  .ctab th{font-family:'Bebas Neue';font-weight:400;font-size:19px;letter-spacing:1px;color:#2C507C;padding:7px 8px 3px;text-align:center}
+  .ctab td{padding:3px 8px;text-align:center;border-top:1px solid rgba(12,35,64,.08);font-weight:600}
+  .ctab .l{text-align:left;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:0;width:60%}
+  .ctab td.p{font-family:'Bebas Neue';font-size:26px;color:#2C507C;width:44px}
+  .ctab td.pts{font-family:'Bebas Neue';font-size:28px;width:60px}
+  .ctab tr.me td{background:var(--y);color:#141416;font-weight:800}
+  .ctab tr.me td.p{color:#141416}
+  .slide.on .ctab{animation:rise .7s cubic-bezier(.16,.9,.3,1) both;animation-delay:.6s}
+  .slide.on .ctab:nth-child(2){animation-delay:.8s} .slide.on .ctab:nth-child(3){animation-delay:1s}
+  /* ===== Contacts (fin de rotation) : du blanc vers le noir, photo à droite ===== */
+  .contact{position:absolute;inset:0;background:radial-gradient(ellipse 60% 70% at 10% 10%,#FFFFFF 0%,#F6F4EF 60%,#EEEBE3 100%);overflow:hidden;color-scheme:only light;forced-color-adjust:none}
+  .contact .cph{position:absolute;top:0;right:0;bottom:0;width:58%;background:#1B1D21 center/cover no-repeat;
+    -webkit-mask-image:linear-gradient(90deg,transparent 0%,rgba(0,0,0,.25) 15%,rgba(0,0,0,.75) 32%,#000 48%);mask-image:linear-gradient(90deg,transparent 0%,rgba(0,0,0,.25) 15%,rgba(0,0,0,.75) 32%,#000 48%)}
+  .contact .cph.nopic{background:repeating-linear-gradient(135deg,#2a2c30 0 22px,#25272b 22px 44px);display:flex;align-items:center;justify-content:center}
+  .contact .cph.nopic span{font-family:'Bebas Neue';font-size:42px;letter-spacing:3px;color:rgba(255,255,255,.45);margin-left:20%}
+  .contact .cfade{position:absolute;inset:0;pointer-events:none;background:linear-gradient(180deg,rgba(255,255,255,.0) 75%,rgba(255,255,255,.35) 100%)}
+  .contact .cin{position:relative;z-index:2;width:56%;height:100%;box-sizing:border-box;padding:40px 0 40px 72px;display:flex;flex-direction:column;justify-content:center;color:#141416}
+  .contact .ck{font-family:'Fredoka',sans-serif;font-weight:600;font-size:30px;letter-spacing:1px;color:var(--y);text-shadow:0 1px 0 rgba(0,0,0,.35),0 0 1px rgba(0,0,0,.35);margin-bottom:30px}
+  .contact h2{font-family:'Luckiest Guy','Fredoka',sans-serif;font-weight:400;font-size:92px;line-height:1.05;margin:8px 0 6px;color:#141416;white-space:nowrap;letter-spacing:1px;transform:rotate(-1.5deg);transform-origin:left center;text-shadow:4px 4px 0 var(--y)}
+  .contact h2::after{content:"";display:block;width:150px;height:10px;border-radius:5px;background:var(--y);margin-top:14px}
+  .contact .cmail{display:flex;align-items:center;gap:22px;margin-top:34px}
+  .contact .cmail .env{width:66px;height:50px;flex:none}
+  .contact .cmail b{font-family:'Fredoka',sans-serif;font-weight:600;font-size:46px;color:#141416}
+  .contact .sfollow{font-family:'Fredoka',sans-serif;font-weight:600;font-size:24px;letter-spacing:3px;text-transform:uppercase;color:#7A7468;margin-top:40px}
+  .contact .soc{display:flex;gap:44px;margin-top:14px;flex-wrap:wrap}
+  .contact .sb{display:flex;align-items:center;gap:16px;background:none;color:#141416;padding:0;border-radius:0}
+  .contact .sb .slogo{width:64px;height:64px;object-fit:contain;flex:none;background:none;padding:0;border-radius:14px;filter:drop-shadow(0 4px 10px rgba(0,0,0,.12))}
+  .contact .sb .sn{display:block;font-family:'Fredoka',sans-serif;font-weight:500;font-size:18px;letter-spacing:1.5px;text-transform:uppercase;color:#7A7468}
+  .contact .sb b{font-family:'Fredoka',sans-serif;font-weight:600;font-size:30px;color:#141416}
+  .contact .cfoot{margin-top:44px;font-family:'Fredoka',sans-serif;font-weight:700;font-size:44px;color:#141416}
+  .contact .cfoot::after{display:none}
+  .slide.on .contact .cph{animation:zoomout 7s .3s ease-out both}
+  .slide.on .contact h2{animation:slidein 1s .4s cubic-bezier(.16,.9,.3,1) both}
+  .slide.on .contact .cl,.slide.on .contact .sb{animation:rise .6s .9s cubic-bezier(.16,.9,.3,1) both}
+  @keyframes zoomout{from{transform:scale(1.08)}to{transform:scale(1)}}
+  /* ===== Classements : fond cognac ===== */
+  main.bg-cognac{background:radial-gradient(ellipse 70% 60% at 14% 8%,rgba(255,215,160,.22) 0%,rgba(255,215,160,0) 70%),
+    radial-gradient(ellipse 65% 60% at 92% 105%,rgba(20,8,0,.45) 0%,rgba(20,8,0,0) 72%),linear-gradient(160deg,#7A4A2A 0%,#5E3820 55%,#432713 100%)}
+  main.bg-cognac #wm{opacity:.12}
+  main.bg-cognac .ctab .ch{background:#2B1A0F}
+  main.bg-cognac .ctab table{color:#2B1A0F}
+  main.bg-cognac .ctab th,main.bg-cognac .ctab td.p{color:#7A4A2A}
+  .ctab table{flex:1}
+  .ctab tr.fg td{color:#A8998A !important;font-weight:500;background:rgba(43,26,15,.035)}
+  .ctab tr.fg td.l{font-style:italic;text-decoration:line-through;text-decoration-color:rgba(168,153,138,.6)}
+  .ctab tr.fg td.pts{font-family:'Outfit';font-size:16px;font-weight:700;letter-spacing:1px}
+  .cls.dense .ctab td{padding:1px 8px} .cls.dense .ctab table{font-size:20px} .cls.dense .ctab td.p{font-size:23px} .cls.dense .ctab td.pts{font-size:24px}
+  .cls.dense2 .ctab td{padding:0 8px} .cls.dense2 .ctab table{font-size:18px} .cls.dense2 .ctab td.p{font-size:20px} .cls.dense2 .ctab td.pts{font-size:21px}
+  .cls.dense2 .ctab th{padding:4px 8px 1px} .cls.dense2 .ctab .ch{padding:6px 18px 2px} .cls.dense2 .ctab .ch span{font-size:34px}
+  .ctab .csrc{font-size:15px;font-style:italic;color:#7A6656;padding:6px 16px 8px;border-top:1px solid rgba(43,26,15,.12);background:rgba(43,26,15,.04)}
+  .ctab .ch .lvl{font-style:normal;font-family:'Bebas Neue';font-size:22px;letter-spacing:1.5px;background:var(--y);color:#141416;padding:2px 10px 0;border-radius:4px;align-self:center}
   /* ===== L'actu de Parfin : style appli d'actu ===== */
   .nx{display:flex;gap:30px;height:calc(100% - 112px)}
   .nx .hero{flex:1.5;min-width:0;position:relative;border-radius:20px;overflow:hidden;box-shadow:0 18px 40px rgba(40,25,0,.28)}
@@ -550,6 +617,7 @@ const DEMO = {
   ],
   photos: [],
   compterebours: [],
+  classements: [{"categorie": "U13 Foot à 8", "niveau": "Excellence", "poule": "Poule A", "calcule": "20/11/2026", "pos": 1, "equipe": "Équipe A", "j": 9, "pts": 24, "diff": "+10"}, {"categorie": "U13 Foot à 8", "niveau": "Excellence", "poule": "Poule A", "calcule": "20/11/2026", "pos": 2, "equipe": "Équipe B", "j": 9, "pts": 22, "diff": "+8"}, {"categorie": "U13 Foot à 8", "niveau": "Excellence", "poule": "Poule A", "calcule": "20/11/2026", "pos": 3, "equipe": "Parfin 1", "j": 9, "pts": 20, "diff": "+6"}, {"categorie": "U13 Foot à 8", "niveau": "Excellence", "poule": "Poule A", "calcule": "20/11/2026", "pos": 4, "equipe": "Équipe C", "j": 9, "pts": 18, "diff": "+4"}, {"categorie": "U13 Foot à 8", "niveau": "Excellence", "poule": "Poule A", "calcule": "20/11/2026", "pos": 5, "equipe": "Équipe D", "j": 9, "pts": 16, "diff": "+2"}, {"categorie": "U13 Foot à 8", "niveau": "Excellence", "poule": "Poule A", "calcule": "20/11/2026", "pos": 6, "equipe": "Équipe E", "j": 9, "pts": 14, "diff": "0"}, {"categorie": "U13 Foot à 8", "niveau": "Excellence", "poule": "Poule A", "calcule": "20/11/2026", "pos": 7, "equipe": "Équipe F", "j": 9, "pts": 12, "diff": "-2"}, {"categorie": "U13 Foot à 8", "niveau": "Excellence", "poule": "Poule A", "calcule": "20/11/2026", "pos": 8, "equipe": "Équipe G", "j": 9, "pts": 10, "diff": "-4"}, {"categorie": "U13 Foot à 8", "niveau": "Excellence", "poule": "Poule A", "calcule": "20/11/2026", "pos": 9, "equipe": "Équipe H", "j": 9, "pts": 8, "diff": "-6"}, {"categorie": "U13 Foot à 8", "niveau": "Excellence", "poule": "Poule A", "calcule": "20/11/2026", "pos": 10, "equipe": "Équipe I", "j": 9, "pts": 6, "diff": "-8"}, {"categorie": "U13 Foot à 11", "niveau": "Challenge", "poule": "Poule A", "calcule": "20/11/2026", "pos": 1, "equipe": "Parfin 1", "j": 9, "pts": 24, "diff": "+10"}, {"categorie": "U13 Foot à 11", "niveau": "Challenge", "poule": "Poule A", "calcule": "20/11/2026", "pos": 2, "equipe": "Équipe A", "j": 9, "pts": 22, "diff": "+8"}, {"categorie": "U13 Foot à 11", "niveau": "Challenge", "poule": "Poule A", "calcule": "20/11/2026", "pos": 3, "equipe": "Équipe B", "j": 9, "pts": 20, "diff": "+6"}, {"categorie": "U13 Foot à 11", "niveau": "Challenge", "poule": "Poule A", "calcule": "20/11/2026", "pos": 4, "equipe": "Équipe C", "j": 9, "pts": 18, "diff": "+4"}, {"categorie": "U13 Foot à 11", "niveau": "Challenge", "poule": "Poule A", "calcule": "20/11/2026", "pos": 5, "equipe": "Équipe D", "j": 9, "pts": 16, "diff": "+2"}, {"categorie": "U13 Foot à 11", "niveau": "Challenge", "poule": "Poule A", "calcule": "20/11/2026", "pos": 6, "equipe": "Équipe E", "j": 9, "pts": 14, "diff": "0"}, {"categorie": "U13 Foot à 11", "niveau": "Challenge", "poule": "Poule A", "calcule": "20/11/2026", "pos": 7, "equipe": "Équipe F", "j": 9, "pts": 12, "diff": "-2"}, {"categorie": "U13 Foot à 11", "niveau": "Challenge", "poule": "Poule A", "calcule": "20/11/2026", "pos": 8, "equipe": "Équipe G", "j": 9, "pts": 10, "diff": "-4"}, {"categorie": "U13 Foot à 11", "niveau": "Challenge", "poule": "Poule A", "calcule": "20/11/2026", "pos": 9, "equipe": "Équipe H", "j": 9, "pts": 8, "diff": "-6"}, {"categorie": "U13 Foot à 11", "niveau": "Challenge", "poule": "Poule A", "calcule": "20/11/2026", "pos": 10, "equipe": "Équipe I", "j": 9, "pts": 6, "diff": "-8"}, {"categorie": "U15 A", "niveau": "Super Élite", "poule": "Poule A", "calcule": "20/11/2026", "pos": 1, "equipe": "Parfin 1", "j": 9, "pts": 24, "diff": "+10"}, {"categorie": "U15 A", "niveau": "Super Élite", "poule": "Poule A", "calcule": "20/11/2026", "pos": 2, "equipe": "Équipe A", "j": 9, "pts": 22, "diff": "+8"}, {"categorie": "U15 A", "niveau": "Super Élite", "poule": "Poule A", "calcule": "20/11/2026", "pos": 3, "equipe": "Équipe B", "j": 9, "pts": 20, "diff": "+6"}, {"categorie": "U15 A", "niveau": "Super Élite", "poule": "Poule A", "calcule": "20/11/2026", "pos": 4, "equipe": "Équipe C", "j": 9, "pts": 18, "diff": "+4"}, {"categorie": "U15 A", "niveau": "Super Élite", "poule": "Poule A", "calcule": "20/11/2026", "pos": 5, "equipe": "Équipe D", "j": 9, "pts": 16, "diff": "+2"}, {"categorie": "U15 A", "niveau": "Super Élite", "poule": "Poule A", "calcule": "20/11/2026", "pos": 6, "equipe": "Équipe E", "j": 9, "pts": 14, "diff": "0"}, {"categorie": "U15 A", "niveau": "Super Élite", "poule": "Poule A", "calcule": "20/11/2026", "pos": 7, "equipe": "Équipe F", "j": 9, "pts": 12, "diff": "-2"}, {"categorie": "U15 A", "niveau": "Super Élite", "poule": "Poule A", "calcule": "20/11/2026", "pos": 8, "equipe": "Équipe G", "j": 9, "pts": 10, "diff": "-4"}, {"categorie": "U15 A", "niveau": "Super Élite", "poule": "Poule A", "calcule": "20/11/2026", "pos": 9, "equipe": "Équipe H", "j": 9, "pts": 8, "diff": "-6"}, {"categorie": "U15 A", "niveau": "Super Élite", "poule": "Poule A", "calcule": "20/11/2026", "pos": 10, "equipe": "Équipe I", "j": 9, "pts": 6, "diff": "-8"}, {"categorie": "U15 B", "niveau": "Excellence", "poule": "Poule A", "calcule": "20/11/2026", "pos": 1, "equipe": "Équipe A", "j": 9, "pts": 24, "diff": "+10"}, {"categorie": "U15 B", "niveau": "Excellence", "poule": "Poule A", "calcule": "20/11/2026", "pos": 2, "equipe": "Équipe B", "j": 9, "pts": 22, "diff": "+8"}, {"categorie": "U15 B", "niveau": "Excellence", "poule": "Poule A", "calcule": "20/11/2026", "pos": 3, "equipe": "Équipe C", "j": 9, "pts": 20, "diff": "+6"}, {"categorie": "U15 B", "niveau": "Excellence", "poule": "Poule A", "calcule": "20/11/2026", "pos": 4, "equipe": "Équipe D", "j": 9, "pts": 18, "diff": "+4"}, {"categorie": "U15 B", "niveau": "Excellence", "poule": "Poule A", "calcule": "20/11/2026", "pos": 5, "equipe": "Équipe E", "j": 9, "pts": 16, "diff": "+2"}, {"categorie": "U15 B", "niveau": "Excellence", "poule": "Poule A", "calcule": "20/11/2026", "pos": 6, "equipe": "Parfin 1", "j": 9, "pts": 14, "diff": "0"}, {"categorie": "U15 B", "niveau": "Excellence", "poule": "Poule A", "calcule": "20/11/2026", "pos": 7, "equipe": "Équipe F", "j": 9, "pts": 12, "diff": "-2"}, {"categorie": "U15 B", "niveau": "Excellence", "poule": "Poule A", "calcule": "20/11/2026", "pos": 8, "equipe": "Équipe G", "j": 9, "pts": 10, "diff": "-4"}, {"categorie": "U15 B", "niveau": "Excellence", "poule": "Poule A", "calcule": "20/11/2026", "pos": 9, "equipe": "Équipe H", "j": 9, "pts": 8, "diff": "-6"}, {"categorie": "U15 B", "niveau": "Excellence", "poule": "Poule A", "calcule": "20/11/2026", "pos": 10, "equipe": "Équipe I", "j": 9, "pts": 6, "diff": "-8"}, {"categorie": "U17", "niveau": "Élite", "poule": "Poule A", "calcule": "20/11/2026", "pos": 1, "equipe": "Équipe A", "j": 9, "pts": 24, "diff": "+10"}, {"categorie": "U17", "niveau": "Élite", "poule": "Poule A", "calcule": "20/11/2026", "pos": 2, "equipe": "Parfin 1", "j": 9, "pts": 22, "diff": "+8"}, {"categorie": "U17", "niveau": "Élite", "poule": "Poule A", "calcule": "20/11/2026", "pos": 3, "equipe": "Équipe B", "j": 9, "pts": 20, "diff": "+6"}, {"categorie": "U17", "niveau": "Élite", "poule": "Poule A", "calcule": "20/11/2026", "pos": 4, "equipe": "Équipe C", "j": 9, "pts": 18, "diff": "+4"}, {"categorie": "U17", "niveau": "Élite", "poule": "Poule A", "calcule": "20/11/2026", "pos": 5, "equipe": "Équipe D", "j": 9, "pts": 16, "diff": "+2"}, {"categorie": "U17", "niveau": "Élite", "poule": "Poule A", "calcule": "20/11/2026", "pos": 6, "equipe": "Équipe E", "j": 9, "pts": 14, "diff": "0"}, {"categorie": "U17", "niveau": "Élite", "poule": "Poule A", "calcule": "20/11/2026", "pos": 7, "equipe": "Équipe F", "j": 9, "pts": 12, "diff": "-2"}, {"categorie": "U17", "niveau": "Élite", "poule": "Poule A", "calcule": "20/11/2026", "pos": 8, "equipe": "Équipe G", "j": 9, "pts": 10, "diff": "-4"}, {"categorie": "U17", "niveau": "Élite", "poule": "Poule A", "calcule": "20/11/2026", "pos": 9, "equipe": "Équipe H", "j": 9, "pts": 8, "diff": "-6"}, {"categorie": "U17", "niveau": "Élite", "poule": "Poule A", "calcule": "20/11/2026", "pos": 10, "equipe": "Équipe I", "j": 9, "pts": 6, "diff": "-8"}, {"categorie": "U21", "niveau": "R2", "poule": "Poule A", "calcule": "20/11/2026", "pos": 1, "equipe": "Équipe A", "j": 9, "pts": 24, "diff": "+10"}, {"categorie": "U21", "niveau": "R2", "poule": "Poule A", "calcule": "20/11/2026", "pos": 2, "equipe": "Équipe B", "j": 9, "pts": 22, "diff": "+8"}, {"categorie": "U21", "niveau": "R2", "poule": "Poule A", "calcule": "20/11/2026", "pos": 3, "equipe": "Équipe C", "j": 9, "pts": 20, "diff": "+6"}, {"categorie": "U21", "niveau": "R2", "poule": "Poule A", "calcule": "20/11/2026", "pos": 4, "equipe": "Parfin 1", "j": 9, "pts": 18, "diff": "+4"}, {"categorie": "U21", "niveau": "R2", "poule": "Poule A", "calcule": "20/11/2026", "pos": 5, "equipe": "Équipe D", "j": 9, "pts": 16, "diff": "+2"}, {"categorie": "U21", "niveau": "R2", "poule": "Poule A", "calcule": "20/11/2026", "pos": 6, "equipe": "Équipe E", "j": 9, "pts": 14, "diff": "0"}, {"categorie": "U21", "niveau": "R2", "poule": "Poule A", "calcule": "20/11/2026", "pos": 7, "equipe": "Équipe F", "j": 9, "pts": 12, "diff": "-2"}, {"categorie": "U21", "niveau": "R2", "poule": "Poule A", "calcule": "20/11/2026", "pos": 8, "equipe": "Équipe G", "j": 9, "pts": 10, "diff": "-4"}, {"categorie": "U21", "niveau": "R2", "poule": "Poule A", "calcule": "20/11/2026", "pos": 9, "equipe": "Équipe H", "j": 9, "pts": 8, "diff": "-6"}, {"categorie": "U21", "niveau": "R2", "poule": "Poule A", "calcule": "20/11/2026", "pos": 10, "equipe": "Équipe I", "j": 9, "pts": 6, "diff": "-8"}, {"categorie": "Seniors", "niveau": "R2", "poule": "Poule A", "calcule": "20/11/2026", "pos": 1, "equipe": "Équipe A", "j": 9, "pts": 24, "diff": "+10"}, {"categorie": "Seniors", "niveau": "R2", "poule": "Poule A", "calcule": "20/11/2026", "pos": 2, "equipe": "Équipe B", "j": 9, "pts": 22, "diff": "+8"}, {"categorie": "Seniors", "niveau": "R2", "poule": "Poule A", "calcule": "20/11/2026", "pos": 3, "equipe": "Équipe C", "j": 9, "pts": 20, "diff": "+6"}, {"categorie": "Seniors", "niveau": "R2", "poule": "Poule A", "calcule": "20/11/2026", "pos": 4, "equipe": "Équipe D", "j": 9, "pts": 18, "diff": "+4"}, {"categorie": "Seniors", "niveau": "R2", "poule": "Poule A", "calcule": "20/11/2026", "pos": 5, "equipe": "Parfin 1", "j": 9, "pts": 16, "diff": "+2"}, {"categorie": "Seniors", "niveau": "R2", "poule": "Poule A", "calcule": "20/11/2026", "pos": 6, "equipe": "Équipe E", "j": 9, "pts": 14, "diff": "0"}, {"categorie": "Seniors", "niveau": "R2", "poule": "Poule A", "calcule": "20/11/2026", "pos": 7, "equipe": "Équipe F", "j": 9, "pts": 12, "diff": "-2"}, {"categorie": "Seniors", "niveau": "R2", "poule": "Poule A", "calcule": "20/11/2026", "pos": 8, "equipe": "Équipe G", "j": 9, "pts": 10, "diff": "-4"}, {"categorie": "Seniors", "niveau": "R2", "poule": "Poule A", "calcule": "20/11/2026", "pos": 9, "equipe": "Équipe H", "j": 9, "pts": 8, "diff": "-6"}, {"categorie": "Seniors", "niveau": "R2", "poule": "Poule A", "calcule": "20/11/2026", "pos": 10, "equipe": "Équipe I", "j": 9, "pts": 6, "diff": "-8"}],
   dujour: [
     {date:"", type:"Événement", titre:"Réunion des éducateurs", texte:"Point sur les plateaux du week-end et les convocations.", heure:"18:30", lieu:"Club house", image:""}
   ],
@@ -563,13 +631,6 @@ const DEMO = {
     {date:"14/11/2026",categorie:"Seniors",competition:"Exemple",domicile:"FC Parfin",scoredom:2,scoreext:1,exterieur:"Équipe B"},
     {date:"14/11/2026",categorie:"U17",competition:"Exemple",domicile:"Équipe C",scoredom:0,scoreext:0,exterieur:"FC Parfin"},
     {date:"15/11/2026",categorie:"U15",competition:"Exemple",domicile:"FC Parfin",scoredom:1,scoreext:3,exterieur:"Équipe D"}
-  ],
-  classements: [
-    {categorie:"Seniors",pos:1,equipe:"Équipe A",j:8,pts:19,diff:"+9"},
-    {categorie:"Seniors",pos:2,equipe:"FC Parfin",j:8,pts:17,diff:"+7"},
-    {categorie:"Seniors",pos:3,equipe:"Équipe B",j:8,pts:15,diff:"+3"},
-    {categorie:"Seniors",pos:4,equipe:"Équipe C",j:8,pts:11,diff:"0"},
-    {categorie:"Seniors",pos:5,equipe:"Équipe D",j:8,pts:8,diff:"-4"}
   ],
   rdvpartenaires: [
     {date:"25/11/2026",heure:"18:00",titre:"Soirée d'ouverture",partenaire:"Partenaire 2",lieu:"Saint-André",detail:"Remise -10 % aux licenciés Parfin"}
@@ -677,7 +738,7 @@ function loadSheet(name){
     document.head.appendChild(s);
   });
 }
-const TABS = {dujour:"DuJour", compterebours:"CompteRebours", actu:"Actu", photos:"Photos", matchs:"Matchs", resultats:"Resultats", rdv:"RDV", rdvpartenaires:"RDVPartenaires", annonces:"Annonces", partenaires:"Partenaires"};
+const TABS = {dujour:"DuJour", classements:"Classements", contact:"Contact", compterebours:"CompteRebours", actu:"Actu", photos:"Photos", matchs:"Matchs", resultats:"Resultats", rdv:"RDV", rdvpartenaires:"RDVPartenaires", annonces:"Annonces", partenaires:"Partenaires"};
 let DATA = null, isDemo = !CONFIG.SHEET_ID;
 
 async function loadData(){
@@ -693,7 +754,7 @@ async function loadData(){
     try { localStorage.setItem("fcp_data", JSON.stringify(out)); } catch(e){}
   } else if (!DATA){
     try { const c = JSON.parse(localStorage.getItem("fcp_data")); if (c) DATA = c; } catch(e){}
-    if (!DATA) DATA = {dujour:[],compterebours:[],actu:[],photos:[],matchs:[],resultats:[],rdv:[],rdvpartenaires:[],annonces:[],partenaires:[]};
+    if (!DATA) DATA = {dujour:[],classements:[],contact:[],compterebours:[],actu:[],photos:[],matchs:[],resultats:[],rdv:[],rdvpartenaires:[],annonces:[],partenaires:[]};
   }
 }
 
@@ -794,7 +855,7 @@ function slidesResultats(){
       <div class="tm l">${hl(r.domicile)}</div><div class="score">${esc(r.scoredom)} – ${esc(r.scoreext)}</div>
       <div class="tm">${hl(r.exterieur)}</div><div>${tag?`<div class="tag ${tag}">${tag}</div>`:""}</div></div>`};
   });
-  const pages = paginate(items, 6);
+  const pages = paginate(items, CONFIG.RESULTATS_PAR_PAGE);
   const win = list.some(r => { const h = CONFIG.CLUB_MATCH.test(r.domicile), a = CONFIG.CLUB_MATCH.test(r.exterieur);
     return (h && +r.scoredom > +r.scoreext) || (a && +r.scoreext > +r.scoredom); });
   const masc = (n) => (win && CONFIG.MASCOT_URL && n <= 5) ? `<img class="mascot m-results" src="${CONFIG.MASCOT_URL}" alt="">` : "";
@@ -951,6 +1012,39 @@ function slidesEDT(){
   h += `</div>`;
   return [head("Planning du Club-House", "Semaine type", 0, 1) + h];
 }
+function slidesClassementsMulti(){
+  const by = {}, key = c => String(c||"").trim().toLowerCase();
+  (DATA.classements||[]).forEach(r => { if (r.equipe && r.categorie) (by[key(r.categorie)] ||= {name:r.categorie, rows:[]}).rows.push(r); });
+  const pages = CONFIG.CLASSEMENT_PAGES.map(g => g.map(c => by[key(c)]).filter(Boolean)).filter(g => g.length);
+  return pages.map((p,i) => { const most = Math.max(...p.map(g => g.rows.length));
+    return head("Classements", "", i, pages.length) + `<div class="cls n${p.length}${most > 12 ? " dense2" : most > 10 ? " dense" : ""}">` + p.map(g => {
+    const rows = g.rows.sort((a,b) => (+a.pos||99)-(+b.pos||99)), r0 = rows[0] || {};
+    return `<div class="ctab"><div class="ch"><span>${esc(g.name)}</span>${r0.niveau ? `<i class="lvl">${esc(r0.niveau)}</i>` : ""}${r0.poule ? `<em>${esc(r0.poule)}</em>` : ""}</div>
+      <table><tr><th>#</th><th class="l">Équipe</th><th>J</th><th>Diff</th><th>Pts</th></tr>` +
+      rows.map(r => { const fg = String(r.pts).trim().toUpperCase() === "FG";
+        return fg ? `<tr class="fg"><td class="p">${esc(r.pos)}</td><td class="l">${esc(r.equipe)}</td><td></td><td></td><td class="pts">FG</td></tr>`
+          : `<tr class="${CONFIG.CLUB_MATCH.test(r.equipe)?"me":""}"><td class="p">${esc(r.pos)}</td><td class="l">${esc(r.equipe)}</td><td>${esc(r.j)}</td><td>${esc(r.diff)}</td><td class="pts">${esc(r.pts)}</td></tr>`; }).join("") +
+      `</table>${(() => { const d = parseDate(r0.calcule || r0.maj || r0.date); return `<div class="csrc">Source : Footclubs${d ? ` · Classement automatique calculé le ${String(d.getDate()).padStart(2,"0")}/${String(d.getMonth()+1).padStart(2,"0")}/${d.getFullYear()}` : ""}</div>`; })()}</div>`; }).join("") + `</div>`; });
+}
+function contactInfo(){
+  const C = {...CONFIG.CONTACT}, soc = [];
+  (DATA.contact||[]).forEach(r => { const k = norm(r.info), v = String(r.valeur||"").trim(); if (!v) return;
+    if (k.includes("mail")) C.email = v; else if (k.startsWith("tel")) C.tel = v; else if (k.startsWith("adresse")) C.adresse = v;
+    else if (k.startsWith("site")) C.site = v; else if (k.startsWith("photo")) C.photo = v; else soc.push({nom:r.info, compte:v, logo:r.logo}); });
+  if (soc.length) C.reseaux = soc;
+  return C;
+}
+function slideContact(){
+  const C = contactInfo();
+  const photo = C.photo ? `<div class="cph" style="background-image:url('${esc(driveImg(C.photo))}')"></div>` : `<div class="cph nopic"><span>[ PHOTO DU CLUB ]</span></div>`;
+  const env = `<svg class="env" viewBox="0 0 64 48" aria-hidden="true"><rect x="2" y="2" width="60" height="44" rx="7" fill="none" stroke="#141416" stroke-width="3"/><path d="M5 7 L32 28 L59 7" fill="none" stroke="#141416" stroke-width="3" stroke-linejoin="round"/><circle cx="54" cy="40" r="7" fill="#FFD100"/></svg>`;
+  return `<div class="contact"><div class="cin">
+    <div class="ck">Merci de votre visite !</div>
+    <h2>Restons en contact !</h2>
+    ${C.email ? `<div class="cmail">${CONFIG.CONTACT_ICONE_MAIL ? env : ""}<b>${esc(C.email)}</b></div>` : ""}
+    ${C.reseaux.length ? `<div class="sfollow">Suivez-nous</div><div class="soc">${C.reseaux.map(r => `<div class="sb">${r.logo ? `<img class="slogo" src="${esc(driveImg(r.logo))}" alt="" onerror="this.remove()">` : ""}<div><span class="sn">${esc(r.nom)}</span><b>${esc(r.compte)}</b></div></div>`).join("")}</div>` : ""}
+    <div class="cfoot">Allez PARFIN !</div></div>${photo}</div>`;
+}
 function slidesRDV(){ return rdvSlides(DATA.rdv, "Les RDV de Parfin", "Les prochains rendez-vous du club", ""); }
 function slidesRDVPartenaires(){ return rdvSlides(DATA.rdvpartenaires, "Les RDV de nos partenaires", "À ne pas manquer", "partners"); }
 
@@ -1036,8 +1130,8 @@ function build(){
   const theme = (arr, bg) => arr.map(x => typeof x === "string" ? {html:x, bg} : {...x, bg});
   const res = theme(slidesResultats(), "sauge"), ag = theme(slidesMatchs(), "green");
   slides = [{html:slideAccueil(), nowm:true, cls:"t-yellow", bg:"yellow"}, ...theme(slidesDuJour(), "lin"), ...theme(slidesActu(), "ivoire").map(x => ({...x, nowm:true})),
-            ...res, ...ag,
-            ...theme(slidesRDV(), "ivoire"), ...theme(slidesRDVPartenaires(), "ivoire"), ...theme(slidesEDT(), "champagne").map(x => ({...x, nowm:true})), ...theme(slidesAnnonces(), "lin")];
+            ...res, ...theme(slidesClassementsMulti(), "cognac"), ...ag,
+            ...theme(slidesRDV(), "ivoire"), ...theme(slidesRDVPartenaires(), "ivoire"), ...theme(slidesEDT(), "champagne").map(x => ({...x, nowm:true})), ...theme(slidesAnnonces(), "lin"), {html:slideContact(), nowm:true, cls:"photo"}];
   if (!slides.length) slides = [`<div class="empty">Bienvenue au club house du ${esc(CONFIG.CLUB_NAME)} !<br><br>Aucune information à afficher pour le moment.</div>`];
   renderFooter();
   $("demo").style.display = isDemo ? "block" : "none";
@@ -1059,6 +1153,7 @@ function next(step){
   p.style.transition = "none"; p.style.width = "0";
   requestAnimationFrame(() => requestAnimationFrame(() => { p.style.transition = `width ${sl.sec || CONFIG.SLIDE_SECONDS}s linear`; p.style.width = "100%"; }));
   $("wm").style.opacity = sl.nowm ? 0 : "";
+  $("clubSub").style.visibility = sl.html.includes('class="contact"') ? "hidden" : "";
   const mn = document.querySelector("main");
   const isLight = ["ivoire","sauge","champagne","lin","pierre"].includes(sl.bg);
   const wmSrc = isLight && CONFIG.CLUB_LOGO_DARK_URL ? CONFIG.CLUB_LOGO_DARK_URL : driveImg(CONFIG.CLUB_LOGO_URL);
