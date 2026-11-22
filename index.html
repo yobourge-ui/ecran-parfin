@@ -17,12 +17,12 @@
   @font-face{font-family:"GagalinLocal";src:url("Gagalin-Regular.otf") format("opentype"),url("Gagalin-Regular.ttf") format("truetype"),url("gagalin.otf") format("opentype");font-display:swap}
 </style>
 <link href="https://db.onlinewebfonts.com/c/061159ef9c2398b970d2cd5f5580f7cd?family=Gagalin" rel="stylesheet">
-<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Lilita+One&family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=Fredoka:wght@500;600;700&family=Luckiest+Guy&family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Lilita+One&family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=Fredoka:wght@400;500;600;700&family=Luckiest+Guy&family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
 <script>
 /* =====================================================================
    CONFIGURATION — la seule partie à modifier
    ===================================================================== */
-const APP_VERSION = "20261122-114505";   // change à chaque nouvelle version : la TV se met à jour toute seule
+const APP_VERSION = "20261122-1915";   // change à chaque nouvelle version : la TV se met à jour toute seule
 const CONFIG = {
   // Identifiant du Google Sheet : c'est la partie entre /d/ et /edit dans l'adresse.
   // https://docs.google.com/spreadsheets/d/  >>> CET_IDENTIFIANT <<<  /edit
@@ -40,6 +40,8 @@ const CONFIG = {
   COUNTDOWN_CATEGORY: "U17",
   COUNTDOWN_LIVE_MINUTES: 110,  // « Match en cours » affiché pendant cette durée après le coup d'envoi
   CLASSEMENT_PAGES: [["U13 Foot à 8","U13 Foot à 11"], ["U15 A","U15 B","U17"], ["U18F","U21","Seniors"]],
+  PHOTO_DUJOUR: "",     // photo fixe de la page du jour (sinon ligne « Photo page du jour » de l'onglet Contact)
+  PHOTO_MESSAGE: "",    // photo fixe de la page Message du club (sinon ligne « Photo message du club »)
   CONTACT_ICONE_MAIL: true,     // page contact : enveloppe à côté de l'e-mail (false pour la retirer)
   CONTACT: {
     email: "contact@parfin.re", tel: "", adresse: "[ADRESSE DU CLUB HOUSE], 97440 Saint-André", site: "[SITE INTERNET]",
@@ -445,6 +447,27 @@ const CONFIG = {
   .contact .cfoot{margin-top:44px;font-family:'Fredoka',sans-serif;font-weight:700;font-size:44px;color:#141416}
   .contact .cfoot::after{display:none}
   .slide.on .contact .cph{animation:zoomout 7s .3s ease-out both}
+  /* photo fondue dans le fond : page du jour (gauche) et message du club (droite) */
+  .sidepic{position:absolute;top:0;bottom:0;height:100%;width:auto;max-width:50%;object-fit:cover;object-position:center top;z-index:0;pointer-events:none}
+  .sidepic.l{left:0;-webkit-mask-image:linear-gradient(270deg,transparent 0%,rgba(0,0,0,.3) 14%,rgba(0,0,0,.8) 30%,#000 44%);mask-image:linear-gradient(270deg,transparent 0%,rgba(0,0,0,.3) 14%,rgba(0,0,0,.8) 30%,#000 44%)}
+  .sidepic.r{right:0;-webkit-mask-image:linear-gradient(90deg,transparent 0%,rgba(0,0,0,.3) 14%,rgba(0,0,0,.8) 30%,#000 44%);mask-image:linear-gradient(90deg,transparent 0%,rgba(0,0,0,.3) 14%,rgba(0,0,0,.8) 30%,#000 44%)}
+  .withpic{position:relative;z-index:1;height:100%}
+  .withpic.l{margin-left:55%}
+  .withpic.r{margin-right:44%}
+  /* police plus douce et plus « cool » sur ces deux pages */
+  .dj-event h3,.ann h3{font-family:'Fredoka',sans-serif;font-weight:700;text-transform:none;letter-spacing:0;line-height:1.02}
+  .dj-event h3{font-size:104px}
+  .ann h3{font-size:88px}
+  .withpic.l h3{font-size:80px}
+  .withpic.r .ann h3{font-size:80px}
+  .sidepic.wide{max-width:52%}
+  .withpic.l.wide{margin-left:57%}
+  .withpic.wide .ann h3{font-size:70px}
+  .dj-event p,.ann p{font-family:'Fredoka',sans-serif;font-weight:400;font-size:44px;line-height:1.38}
+  .dj-event .dj-badge{font-family:'Fredoka',sans-serif;font-weight:600;font-size:32px;letter-spacing:.5px;padding:8px 24px;border-radius:40px}
+  .dj-meta span,.ann .when{font-family:'Fredoka',sans-serif;font-weight:500}
+  .slide.on .sidepic{animation:picfade 1.4s .2s ease-out both}
+  @keyframes picfade{from{opacity:0}to{opacity:1}}
   .slide.on .contact h2{animation:slidein 1s .4s cubic-bezier(.16,.9,.3,1) both}
   .slide.on .contact .cl,.slide.on .contact .sb{animation:rise .6s .9s cubic-bezier(.16,.9,.3,1) both}
   @keyframes zoomout{from{transform:scale(1.08)}to{transform:scale(1)}}
@@ -754,7 +777,7 @@ function catRank(c){
 function driveImg(url){ // transforme un lien de partage Google Drive en image affichable
   if (!url) return "";
   const m = String(url).match(/(?:\/d\/|id=)([\w-]{20,})/);
-  return (m && /drive\.google/.test(url)) ? `https://lh3.googleusercontent.com/d/${m[1]}=w800` : url;
+  return (m && /drive\.google/.test(url)) ? `https://lh3.googleusercontent.com/d/${m[1]}=w1600` : url;
 }
 function driveFallback(url){ // second format si le premier ne s'affiche pas
   const m = String(url||"").match(/(?:\/d\/|id=)([\w-]{20,})/);
@@ -909,7 +932,7 @@ function slidesResultats(){
   let list = (DATA.resultats||[]).map(r => ({...r, _d: parseDate(r.date)})).filter(r => r._d && r.scoredom !== "" && r.scoreext !== "");
   if (!isDemo) list = list.filter(r => r._d >= tStart && r._d <= t0);
   if (!list.length) return [];
-  list.sort((a,b) => b._d-a._d || catRank(a.categorie)-catRank(b.categorie));
+  list.sort((a,b) => a._d-b._d || hmin(a.heure)-hmin(b.heure) || catRank(a.categorie)-catRank(b.categorie)); // du plus ancien au plus récent
   const items = list.map(r => {
     const sd = +r.scoredom, se = +r.scoreext;
     const home = CONFIG.CLUB_MATCH.test(r.domicile), away = CONFIG.CLUB_MATCH.test(r.exterieur);
@@ -947,13 +970,17 @@ function slidesAnnonces(){
     return isDemo || ((!d || d <= t0) && (!f || f >= t0));
   }).map(a => {
     const f = parseDate(a.fin);
-    const img = driveImg(a.image);
-    return head("Message du club", "", 0, 1) +
-      `<div class="ann"><div class="txt"><h3>${esc(a.titre)}</h3><p>${esc(a.texte)}</p>${a.quand?`<div class="when">${esc(a.quand)}</div>`:""}</div>
-       ${img?`<img src="${esc(img)}" alt="">`:""}</div>`;
+    const img = driveImg(a.image || contactInfo().photoMessage || CONFIG.PHOTO_MESSAGE);
+    return {nowm: !!img, html: (img ? `<img class="sidepic l wide" src="${esc(img)}" alt="" onload="picFit(this)">` : "") +
+      `<div class="${img ? "withpic l wide" : ""}">` + head("Message du club", "", 0, 1) +
+      `<div class="ann"><div class="txt"><h3>${esc(a.titre)}</h3><p>${esc(a.texte)}</p>${a.quand?`<div class="when">${esc(a.quand)}</div>`:""}</div></div></div>`};
   });
 }
 
+function picFit(img){ // le texte se cale juste après la photo (qui garde toujours sa hauteur entière)
+  const box = img.nextElementSibling; if (!box || !img.offsetWidth) return;
+  box.style.marginLeft = Math.max(480, img.offsetWidth - 56 + 120) + "px";  // le texte commence là où la photo s'arrête
+}
 function slidesDuJour(){
   const t0 = today0();
   return (DATA.dujour||[]).filter(d => d.titre || d.image).filter(d => {
@@ -967,11 +994,11 @@ function slidesDuJour(){
        <div class="dj-badge">📸 Photo du jour</div>
        ${d.titre || d.texte ? `<div class="cap">${d.titre?`<h3>${esc(d.titre)}</h3>`:""}${d.texte?`<p>${esc(d.texte)}</p>`:""}</div>` : ""}</div>`};
     const meta = [d.heure ? `🕒 ${esc(fmtHour(d.heure))}` : "", d.lieu ? `📍 ${esc(d.lieu)}` : ""].filter(Boolean);
-    return {sec: CONFIG.DUJOUR_SECONDS, nowm: !!img, html:
-      `<div class="dj-event"><div class="txt"><div class="dj-badge">Aujourd'hui · ${esc(fmtDayLong(today0()))}</div>
+    const side = driveImg(d.image || contactInfo().photoDujour || CONFIG.PHOTO_DUJOUR);
+    return {sec: CONFIG.DUJOUR_SECONDS, nowm: !!side, html: (side ? `<img class="sidepic l" src="${esc(side)}" alt="" onload="picFit(this)">` : "") +
+      `<div class="dj-event ${side ? "withpic l" : ""}"><div class="txt"><div class="dj-badge">Aujourd'hui · ${esc(fmtDayLong(today0()))}</div>
        <h3>${esc(d.titre)}</h3>${d.texte?`<p>${esc(d.texte)}</p>`:""}
-       ${meta.length?`<div class="dj-meta">${meta.map(m=>`<span>${m}</span>`).join("")}</div>`:""}</div>
-       ${img?`<img src="${esc(img)}" alt="">`:""}</div>`};
+       ${meta.length?`<div class="dj-meta">${meta.map(m=>`<span>${m}</span>`).join("")}</div>`:""}</div></div>`};
   });
 }
 function hmin(h){ // « 9h30 », « 09:30 », « Matin »… → minutes, pour trier dans l'ordre de la journée
@@ -1096,7 +1123,7 @@ function contactInfo(){
   const C = {...CONFIG.CONTACT}, soc = [];
   (DATA.contact||[]).forEach(r => { const k = norm(r.info), v = String(r.valeur||"").trim(); if (!v) return;
     if (k.includes("mail")) C.email = v; else if (k.startsWith("tel")) C.tel = v; else if (k.startsWith("adresse")) C.adresse = v;
-    else if (k.startsWith("site")) C.site = v; else if (k.startsWith("photo")) C.photo = v; else soc.push({nom:r.info, compte:v, logo:r.logo}); });
+    else if (k.startsWith("site")) C.site = v; else if (k.startsWith("photo") && k.includes("jour")) C.photoDujour = v; else if (k.startsWith("photo") && (k.includes("message") || k.includes("annonce"))) C.photoMessage = v; else if (k.startsWith("photo")) C.photo = v; else soc.push({nom:r.info, compte:v, logo:r.logo}); });
   if (soc.length) C.reseaux = soc;
   return C;
 }
@@ -1143,7 +1170,7 @@ function slideHorloge(){
     ${(dep || rdvTxt) ? `<div class="deps">${dep ? `<div class="dep"><span class="dl">Prochain match</span><span class="dv">${esc(dep)}</span>${matchLive ? live : ""}</div>` : ""}${rdvTxt ? `<div class="dep"><span class="dl">Prochain RDV</span><span class="dv">${esc(rdvTxt)}</span>${rdvLive ? live : ""}</div>` : ""}</div>` : ""}
     </div>`;
   return {html, fs:true, nowm:true, sec:CONFIG.HORLOGE_SECONDS, onshow: el => {
-    const big = [...el.querySelectorAll(".flap.big")], sm = [...el.querySelectorAll(".flap.sm")];
+    const big = [...el.querySelectorAll(".flap.big")], sm = [...el.querySelectorAll(".drow .flap.sm")];
     const letters = [...date].filter(c => c !== " ");
     const hhmm = () => { const t = nowLocal(); return String(t.getHours()).padStart(2,"0") + String(t.getMinutes()).padStart(2,"0"); };
     // 1) arrivée : les palettes défilent comme un tableau des départs, puis s'arrêtent sur la vraie valeur
@@ -1156,6 +1183,7 @@ function slideHorloge(){
     });
     shuffle(big, [...hhmm()], "0123456789", 8);
     shuffle(sm, letters, "ABCDEFGHIJKLMNOPRSTUVÉ", 5);
+    el.querySelectorAll(".dep .live").forEach(lv => { const fl = [...lv.querySelectorAll(".flap")]; shuffle(fl, fl.map(f => f.dataset.v), "ABCDEFGHIJKLMNOPRSTUV", 7); });
     // 2) ensuite : bascule réelle à chaque changement de minute
     const iv = setInterval(() => { if (!document.body.contains(el)){ clearInterval(iv); return; }
       [...hhmm()].forEach((c, i) => setFlap(big[i], c, 160)); }, 1000);
