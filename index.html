@@ -22,7 +22,7 @@
 /* =====================================================================
    CONFIGURATION — la seule partie à modifier
    ===================================================================== */
-const APP_VERSION = "20261122-004906";   // change à chaque nouvelle version : la TV se met à jour toute seule
+const APP_VERSION = "20261122-105447";   // change à chaque nouvelle version : la TV se met à jour toute seule
 const CONFIG = {
   // Identifiant du Google Sheet : c'est la partie entre /d/ et /edit dans l'adresse.
   // https://docs.google.com/spreadsheets/d/  >>> CET_IDENTIFIANT <<<  /edit
@@ -456,6 +456,21 @@ const CONFIG = {
   main.bg-cognac .ctab table{color:#2B1A0F}
   main.bg-cognac .ctab th,main.bg-cognac .ctab td.p{color:#7A4A2A}
   .ctab table{flex:1}
+  /* ===== Parfin 1er : effet K2000 jaune + étoiles ===== */
+  .ctab tr.lead td{animation:leadglow 2.4s ease-in-out infinite;position:relative}
+  @keyframes leadglow{0%,100%{background:#FFD100}50%{background:#FFE45C}}
+  .ctab tr.lead td.p{font-size:26px;color:#141416}
+  .ctab tr.lead td.l{overflow:hidden}
+  .ctab tr.lead .scan{position:absolute;top:0;bottom:0;width:26%;left:0;pointer-events:none;
+    background:linear-gradient(90deg,rgba(255,255,255,0),rgba(255,255,255,.8) 50%,rgba(255,255,255,0));animation:k2000 1.7s ease-in-out infinite alternate}
+  @keyframes k2000{from{left:-26%}to{left:100%}}
+  .ctab tr.lead .stars{margin-left:10px;display:inline-flex;gap:4px;vertical-align:middle}
+  .ctab tr.lead .stars i{font-style:normal;font-size:20px;color:#fff;text-shadow:0 0 2px rgba(120,80,0,.9),0 0 10px #fff,0 0 16px rgba(255,255,255,.9);animation:twinkle 1.6s ease-in-out infinite}
+  .ctab tr.lead .stars i:nth-child(2){animation-delay:.5s;font-size:12px}
+  .ctab tr.lead .stars i:nth-child(3){animation-delay:1s}
+  @keyframes twinkle{0%,100%{opacity:.15;transform:scale(.6)}50%{opacity:1;transform:scale(1.15)}}
+  .ctab tr.lead{box-shadow:0 0 0 2px #FFD100,0 0 22px rgba(255,209,0,.7)}
+
   .ctab tr.fg td{color:#A8998A !important;font-weight:500;background:rgba(43,26,15,.035)}
   .ctab tr.fg td.l{font-style:italic;text-decoration:line-through;text-decoration-color:rgba(168,153,138,.6)}
   .ctab tr.fg td.pts{font-family:'Outfit';font-size:16px;font-weight:700;letter-spacing:1px}
@@ -1069,7 +1084,8 @@ function slidesClassementsMulti(){
       <table><tr><th>#</th><th class="l">Équipe</th><th>J</th><th>Diff</th><th>Pts</th></tr>` +
       rows.map(r => { const fg = String(r.pts).trim().toUpperCase() === "FG";
         return fg ? `<tr class="fg"><td class="p">${esc(r.pos)}</td><td class="l">${esc(r.equipe)}</td><td></td><td></td><td class="pts">FG</td></tr>`
-          : `<tr class="${CONFIG.CLUB_MATCH.test(r.equipe)?"me":""}"><td class="p">${esc(r.pos)}</td><td class="l">${esc(r.equipe)}</td><td>${esc(r.j)}</td><td>${esc(r.diff)}</td><td class="pts">${esc(r.pts)}</td></tr>`; }).join("") +
+          : (() => { const me = CONFIG.CLUB_MATCH.test(r.equipe), lead = me && +r.pos === 1;
+            return `<tr class="${me ? "me" : ""}${lead ? " lead" : ""}"><td class="p">${lead ? "★" : esc(r.pos)}</td><td class="l">${lead ? `<span class="scan"></span>` : ""}${esc(r.equipe)}${lead ? `<span class="stars"><i>✦</i><i>✦</i><i>✦</i></span>` : ""}</td>`; })() + `<td>${esc(r.j)}</td><td>${esc(r.diff)}</td><td class="pts">${esc(r.pts)}</td></tr>`; }).join("") +
       `</table>${(() => { const d = parseDate(r0.calcule || r0.maj || r0.date); return `<div class="csrc">Source : Footclubs${d ? ` · Classement automatique calculé le ${String(d.getDate()).padStart(2,"0")}/${String(d.getMonth()+1).padStart(2,"0")}/${d.getFullYear()}` : ""}</div>`; })()}</div>`; }).join("") + `</div>`; });
 }
 function contactInfo(){
@@ -1089,7 +1105,7 @@ function slideContact(){
     <h2>Restons en contact !</h2>
     ${C.email ? `<div class="cmail">${CONFIG.CONTACT_ICONE_MAIL ? env : ""}<b>${esc(C.email)}</b></div>` : ""}
     ${C.reseaux.length ? `<div class="sfollow">Suivez-nous</div><div class="soc">${C.reseaux.map(r => `<div class="sb">${r.logo ? `<img class="slogo" src="${esc(driveImg(r.logo))}" alt="" onerror="this.remove()">` : ""}<div><span class="sn">${esc(r.nom)}</span><b>${esc(r.compte)}</b></div></div>`).join("")}</div>` : ""}
-    <div class="cfoot">Allez PARFIN !</div></div>${photo}</div>`;
+    <div class="cfoot">On est chez nous !</div></div>${photo}</div>`;
 }
 /* ===================== HORLOGE À PALETTES (aéroport) ===================== */
 function flapHTML(cls, ch){ return `<span class="flap ${cls}" data-v="${esc(ch)}"><span class="up"><b>${esc(ch)}</b></span><span class="dn"><b>${esc(ch)}</b></span></span>`; }
@@ -1144,7 +1160,7 @@ function slideAccueil(){
   const lg = CONFIG.CLUB_LOGO_DARK_URL || CONFIG.CLUB_LOGO_URL;
   const logo = lg ? `<img src="${esc(driveImg(lg))}" alt="">` : `<div class="crestbig">FCP</div>`;
   return `<div class="welcome-slide"><div class="big">${logo}</div><div>
-    <div class="kick">Bienvenue au club house</div>
+    <div class="kick">Bienvenue au club-house du</div>
     <h2 class="gaga">${esc(CONFIG.CLUB_NAME)}</h2>
     <div class="sub">${esc(CONFIG.CLUB_SUBTITLE)}</div><div class="bar"></div></div></div>
     ${(CONFIG.MASCOT_WELCOME_URL || CONFIG.MASCOT_URL) ? `<img class="mascot m-welcome" src="${CONFIG.MASCOT_WELCOME_URL || CONFIG.MASCOT_URL}" alt="">` : ""}`;
