@@ -22,7 +22,7 @@
 /* =====================================================================
    CONFIGURATION — la seule partie à modifier
    ===================================================================== */
-const APP_VERSION = "20261122-105447";   // change à chaque nouvelle version : la TV se met à jour toute seule
+const APP_VERSION = "20261122-114505";   // change à chaque nouvelle version : la TV se met à jour toute seule
 const CONFIG = {
   // Identifiant du Google Sheet : c'est la partie entre /d/ et /edit dans l'adresse.
   // https://docs.google.com/spreadsheets/d/  >>> CET_IDENTIFIANT <<<  /edit
@@ -461,9 +461,6 @@ const CONFIG = {
   @keyframes leadglow{0%,100%{background:#FFD100}50%{background:#FFE45C}}
   .ctab tr.lead td.p{font-size:26px;color:#141416}
   .ctab tr.lead td.l{overflow:hidden}
-  .ctab tr.lead .scan{position:absolute;top:0;bottom:0;width:26%;left:0;pointer-events:none;
-    background:linear-gradient(90deg,rgba(255,255,255,0),rgba(255,255,255,.8) 50%,rgba(255,255,255,0));animation:k2000 1.7s ease-in-out infinite alternate}
-  @keyframes k2000{from{left:-26%}to{left:100%}}
   .ctab tr.lead .stars{margin-left:10px;display:inline-flex;gap:4px;vertical-align:middle}
   .ctab tr.lead .stars i{font-style:normal;font-size:20px;color:#fff;text-shadow:0 0 2px rgba(120,80,0,.9),0 0 10px #fff,0 0 16px rgba(255,255,255,.9);animation:twinkle 1.6s ease-in-out infinite}
   .ctab tr.lead .stars i:nth-child(2){animation-delay:.5s;font-size:12px}
@@ -515,7 +512,14 @@ const CONFIG = {
   .dep{display:flex;align-items:center;gap:22px;max-width:1720px;font-family:'Bebas Neue';letter-spacing:3px}
   .dep .dl{background:var(--y);color:#141416;font-size:30px;padding:6px 16px 2px;border-radius:6px;min-width:230px;box-sizing:border-box;text-align:center;flex:none;white-space:nowrap}
   .dep .dv{color:var(--y);font-size:38px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
-  .clockfs .clogo{position:absolute;right:56px;bottom:40px;height:110px;opacity:.85}
+  .dep .live{display:inline-flex;gap:4px;align-items:center;flex:none;margin-left:14px;animation:liveblink 1.4s ease-in-out infinite}
+  .dep .live .flap.sm{width:38px;height:56px;font-size:46px}
+  .dep .live .flap.sm b{height:56px;line-height:58px}
+  .dep .live .flap.sm>span{background:linear-gradient(180deg,#F4F2EE,#E2DFD8)}
+  .dep .live .flap.sm .dn{background:linear-gradient(180deg,#D9D6CF,#EAE7E0)}
+  .dep .live .flap.sm b{color:#141416}
+  .dep .live .gap{width:14px}
+  @keyframes liveblink{0%,100%{opacity:1}50%{opacity:.35}}
   /* ===== L'actu de Parfin : style appli d'actu ===== */
   .nx{display:flex;gap:30px;height:calc(100% - 112px)}
   .nx .hero{flex:1.5;min-width:0;position:relative;border-radius:20px;overflow:hidden;box-shadow:0 18px 40px rgba(40,25,0,.28)}
@@ -1085,7 +1089,7 @@ function slidesClassementsMulti(){
       rows.map(r => { const fg = String(r.pts).trim().toUpperCase() === "FG";
         return fg ? `<tr class="fg"><td class="p">${esc(r.pos)}</td><td class="l">${esc(r.equipe)}</td><td></td><td></td><td class="pts">FG</td></tr>`
           : (() => { const me = CONFIG.CLUB_MATCH.test(r.equipe), lead = me && +r.pos === 1;
-            return `<tr class="${me ? "me" : ""}${lead ? " lead" : ""}"><td class="p">${lead ? "★" : esc(r.pos)}</td><td class="l">${lead ? `<span class="scan"></span>` : ""}${esc(r.equipe)}${lead ? `<span class="stars"><i>✦</i><i>✦</i><i>✦</i></span>` : ""}</td>`; })() + `<td>${esc(r.j)}</td><td>${esc(r.diff)}</td><td class="pts">${esc(r.pts)}</td></tr>`; }).join("") +
+            return `<tr class="${me ? "me" : ""}${lead ? " lead" : ""}"><td class="p">${lead ? "★" : esc(r.pos)}</td><td class="l">${esc(r.equipe)}${lead ? `<span class="stars"><i>✦</i><i>✦</i><i>✦</i></span>` : ""}</td>`; })() + `<td>${esc(r.j)}</td><td>${esc(r.diff)}</td><td class="pts">${esc(r.pts)}</td></tr>`; }).join("") +
       `</table>${(() => { const d = parseDate(r0.calcule || r0.maj || r0.date); return `<div class="csrc">Source : Footclubs${d ? ` · Classement automatique calculé le ${String(d.getDate()).padStart(2,"0")}/${String(d.getMonth()+1).padStart(2,"0")}/${d.getFullYear()}` : ""}</div>`; })()}</div>`; }).join("") + `</div>`; });
 }
 function contactInfo(){
@@ -1105,7 +1109,7 @@ function slideContact(){
     <h2>Restons en contact !</h2>
     ${C.email ? `<div class="cmail">${CONFIG.CONTACT_ICONE_MAIL ? env : ""}<b>${esc(C.email)}</b></div>` : ""}
     ${C.reseaux.length ? `<div class="sfollow">Suivez-nous</div><div class="soc">${C.reseaux.map(r => `<div class="sb">${r.logo ? `<img class="slogo" src="${esc(driveImg(r.logo))}" alt="" onerror="this.remove()">` : ""}<div><span class="sn">${esc(r.nom)}</span><b>${esc(r.compte)}</b></div></div>`).join("")}</div>` : ""}
-    <div class="cfoot">On est chez nous !</div></div>${photo}</div>`;
+    <div class="cfoot">On est chez nous !!! 🎉</div></div>${photo}</div>`;
 }
 /* ===================== HORLOGE À PALETTES (aéroport) ===================== */
 function flapHTML(cls, ch){ return `<span class="flap ${cls}" data-v="${esc(ch)}"><span class="up"><b>${esc(ch)}</b></span><span class="dn"><b>${esc(ch)}</b></span></span>`; }
@@ -1126,14 +1130,18 @@ function slideHorloge(){
   // prochain RDV de Parfin (onglet RDV uniquement, pas les partenaires)
   const nowM = d.getHours()*60 + d.getMinutes(), t0 = today0();
   const r = (DATA.rdv||[]).map(x => ({...x, _d: parseDate(x.date)})).filter(x => x._d && x.titre)
-    .filter(x => x._d > t0 || (x._d.getTime() === t0.getTime() && hmin(x.heure) + 60 > nowM))
+    .filter(x => x._d > t0 || (x._d.getTime() === t0.getTime() && hmin(x.heure) + 90 > nowM))
     .sort((a,b) => a._d-b._d || hmin(a.heure)-hmin(b.heure))[0];
   const rdvTxt = r ? [r.titre, r.lieu, fmtDayShort(r._d), r.heure ? fmtHour(r.heure) : ""].filter(Boolean).join(" · ").toUpperCase() : "";
+  const LIVE = 90 * 60000, nowT = d.getTime();
+  const matchLive = n && n._k && nowT >= n._k.getTime() && nowT - n._k.getTime() < LIVE;
+  const rdvLive = r && r._d.getTime() === t0.getTime() && nowM >= hmin(r.heure) && nowM - hmin(r.heure) < 90;
+  const live = `<span class="live">${[..."EN COURS"].map(c => c === " " ? `<span class="gap"></span>` : flapHTML("sm", c)).join("")}</span>`;
   const html = `<div class="clockfs">
     <div class="board">${flapHTML("big","0")}${flapHTML("big","0")}<span class="colon"><i></i><i></i></span>${flapHTML("big","0")}${flapHTML("big","0")}</div>
     <div class="drow">${[...date].map(c => c === " " ? `<span class="gap"></span>` : flapHTML("sm", " ")).join("")}</div>
-    ${(dep || rdvTxt) ? `<div class="deps">${dep ? `<div class="dep"><span class="dl">Prochain match</span><span class="dv">${esc(dep)}</span></div>` : ""}${rdvTxt ? `<div class="dep"><span class="dl">Prochain RDV</span><span class="dv">${esc(rdvTxt)}</span></div>` : ""}</div>` : ""}
-    ${CONFIG.CLUB_LOGO_URL ? `<img class="clogo" src="${CONFIG.CLUB_LOGO_URL}" alt="">` : ""}</div>`;
+    ${(dep || rdvTxt) ? `<div class="deps">${dep ? `<div class="dep"><span class="dl">Prochain match</span><span class="dv">${esc(dep)}</span>${matchLive ? live : ""}</div>` : ""}${rdvTxt ? `<div class="dep"><span class="dl">Prochain RDV</span><span class="dv">${esc(rdvTxt)}</span>${rdvLive ? live : ""}</div>` : ""}</div>` : ""}
+    </div>`;
   return {html, fs:true, nowm:true, sec:CONFIG.HORLOGE_SECONDS, onshow: el => {
     const big = [...el.querySelectorAll(".flap.big")], sm = [...el.querySelectorAll(".flap.sm")];
     const letters = [...date].filter(c => c !== " ");
