@@ -22,7 +22,7 @@
 /* =====================================================================
    CONFIGURATION — la seule partie à modifier
    ===================================================================== */
-const APP_VERSION = "20261122-1915";   // change à chaque nouvelle version : la TV se met à jour toute seule
+const APP_VERSION = "20261123-0950";   // change à chaque nouvelle version : la TV se met à jour toute seule
 const CONFIG = {
   // Identifiant du Google Sheet : c'est la partie entre /d/ et /edit dans l'adresse.
   // https://docs.google.com/spreadsheets/d/  >>> CET_IDENTIFIANT <<<  /edit
@@ -156,6 +156,17 @@ const CONFIG = {
   .res .dt{font-size:24px;color:var(--mute);text-transform:capitalize}
   .res .tm{font-size:32px;font-weight:600}
   .res .tm.l{text-align:right}
+  /* résultats regroupés par catégorie / compétition */
+  .res.rg{grid-template-columns:170px 1fr 190px 1fr 70px;margin-left:34px}
+  .res.rg .dt small{display:block;font-size:20px;opacity:.75}
+  .rgh{display:flex;align-items:center;gap:18px;margin:14px 0 8px}
+  .rgh:first-child{margin-top:2px}
+  .rgh .pill{display:inline-block;background:var(--y);color:var(--ink);font-family:'Bebas Neue';font-weight:400;letter-spacing:1.5px;font-size:38px;line-height:1.1;padding:2px 16px 0;border-radius:6px;box-shadow:0 2px 6px rgba(0,0,0,.18)}
+  .rgh .rcomp{font-family:'Bebas Neue';font-weight:400;font-size:36px;letter-spacing:2px;text-transform:uppercase;color:var(--w)}
+  .rgh .rsuite{font-size:24px;opacity:.6;font-style:italic}
+  main.light .rgh .pill{background:#0C2340;color:#F7F4EC}
+  main.light .rgh .rcomp,main.light .rgh .rsuite{color:var(--txt)}
+  .slide.on .rgh{animation:rise .7s cubic-bezier(.16,.9,.3,1) both;animation-delay:.5s}
   .score{font-family:'Bebas Neue';font-weight:400;letter-spacing:1px;font-size:46px;background:var(--y);color:var(--ink);text-align:center;border-radius:6px;line-height:1.25}
   .tag{font-family:'Bebas Neue';font-weight:400;letter-spacing:1px;font-size:30px;width:56px;height:56px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#000}
   .tag.V{background:var(--win)} .tag.N{background:var(--draw)} .tag.D{background:var(--loss);color:#fff}
@@ -932,22 +943,41 @@ function slidesResultats(){
   let list = (DATA.resultats||[]).map(r => ({...r, _d: parseDate(r.date)})).filter(r => r._d && r.scoredom !== "" && r.scoreext !== "");
   if (!isDemo) list = list.filter(r => r._d >= tStart && r._d <= t0);
   if (!list.length) return [];
-  list.sort((a,b) => a._d-b._d || hmin(a.heure)-hmin(b.heure) || catRank(a.categorie)-catRank(b.categorie)); // du plus ancien au plus récent
-  const items = list.map(r => {
+  // regroupement par catégorie / compétition (dans chaque groupe : du plus ancien au plus récent)
+  list.sort((a,b) => catRank(a.categorie)-catRank(b.categorie) || String(a.categorie||"").localeCompare(String(b.categorie||"")) ||
+    String(a.competition||"").localeCompare(String(b.competition||"")) || a._d-b._d || hmin(a.heure)-hmin(b.heure));
+  const groups = [];
+  list.forEach(r => { const k = (r.categorie||"") + "|" + (r.competition||""); let g = groups[groups.length-1];
+    if (!g || g.k !== k){ g = {k, cat:r.categorie||"", comp:r.competition||"", rows:[]}; groups.push(g); } g.rows.push(r); });
+  const rowHTML = r => {
     const sd = +r.scoredom, se = +r.scoreext;
     const home = CONFIG.CLUB_MATCH.test(r.domicile), away = CONFIG.CLUB_MATCH.test(r.exterieur);
     let tag = "";
     if (home || away){ const us = home ? sd : se, them = home ? se : sd; tag = us>them?"V":us<them?"D":"N"; }
-    return {w:1, html:`<div class="res" style="${tag?"border-left-color:var(--y)":""}"><div class="dt">${esc(fmtDayShort(r._d))}</div>
-      <div class="cat"><span class="pill">${esc(r.categorie)}</span>${r.competition?`<div class="comp">${esc(r.competition)}</div>`:""}</div>
+    return `<div class="res rg" style="${tag?"border-left-color:var(--y)":""}"><div class="dt">${esc(fmtDayShort(r._d))}${r.heure?`<small>${esc(fmtHour(r.heure))}</small>`:""}</div>
       <div class="tm l">${hl(r.domicile)}</div><div class="score">${esc(r.scoredom)} – ${esc(r.scoreext)}</div>
-      <div class="tm">${hl(r.exterieur)}</div><div>${tag?`<div class="tag ${tag}">${tag}</div>`:""}</div></div>`};
+      <div class="tm">${hl(r.exterieur)}</div><div>${tag?`<div class="tag ${tag}">${tag}</div>`:""}</div></div>`;
+  };
+  const ghHTML = (g, suite) => `<div class="rgh"><span class="pill">${esc(g.cat)}</span>${g.comp?`<span class="rcomp">${esc(g.comp)}</span>`:""}${suite?`<span class="rsuite">(suite)</span>`:""}</div>`;
+  // pagination : 5 matchs max par écran, un groupe n'est coupé que s'il ne tient pas sur un écran
+  const MAXN = CONFIG.RESULTATS_PAR_PAGE, CAP = MAXN + 1.6, HW = 0.7;
+  const pages = []; let cur = [], w = 0, n = 0;
+  const flush = () => { if (cur.length){ pages.push(cur); cur = []; w = 0; n = 0; } };
+  groups.forEach(g => {
+    const need = HW + g.rows.length;
+    if (cur.length && (w + need > CAP || n + g.rows.length > MAXN) && need <= CAP && g.rows.length <= MAXN) flush();
+    if (cur.length && (w + HW + 1 > CAP || n + 1 > MAXN)) flush();
+    cur.push(ghHTML(g, false)); w += HW;
+    g.rows.forEach(r => {
+      if (w + 1 > CAP || n + 1 > MAXN){ flush(); cur.push(ghHTML(g, true)); w += HW; }
+      cur.push(rowHTML(r)); w += 1; n += 1;
+    });
   });
-  const pages = paginate(items, CONFIG.RESULTATS_PAR_PAGE);
+  flush();
   const win = list.some(r => { const h = CONFIG.CLUB_MATCH.test(r.domicile), a = CONFIG.CLUB_MATCH.test(r.exterieur);
     return (h && +r.scoredom > +r.scoreext) || (a && +r.scoreext > +r.scoredom); });
   const masc = (n) => (win && CONFIG.MASCOT_URL && n <= 5) ? `<img class="mascot m-results" src="${CONFIG.MASCOT_URL}" alt="">` : "";
-  return pages.map((p,i) => head("Résultats", "Derniers matchs", i, pages.length) + `<div class="${masc(p.length)?"with-masc":""}">` + p.map(x=>x.html).join("") + `</div>` + masc(p.length));
+  return pages.map((p,i) => head("Résultats", "Derniers matchs", i, pages.length) + `<div class="${masc(0)?"with-masc":""}">` + p.join("") + `</div>` + masc(0));
 }
 
 function slidesClassements(){
